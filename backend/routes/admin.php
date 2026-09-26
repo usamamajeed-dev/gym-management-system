@@ -2,6 +2,7 @@
 
 declare(strict_types=1);
 
+use App\Http\Controllers\Api\Admin\AuthController as AdminAuthController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -13,6 +14,16 @@ use Illuminate\Support\Facades\Route;
 | group adds its own permission:<name>,api.
 |
 */
+
+/** Auth routes */
+Route::prefix('auth')->group(function (): void {
+    Route::post('login', [AdminAuthController::class, 'login'])->middleware('throttle:login');
+
+    Route::middleware(['auth:api', 'role:admin,api'])->group(function (): void {
+        Route::post('logout', [AdminAuthController::class, 'logout']);
+        Route::get('me', [AdminAuthController::class, 'me']);
+    });
+});
 
 Route::middleware(['auth:api', 'role:admin,api'])->group(function (): void {
     //

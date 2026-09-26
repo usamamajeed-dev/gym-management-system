@@ -27,6 +27,9 @@ return Application::configure(basePath: dirname(__DIR__))
         },
     )
     ->withMiddleware(function (Middleware $middleware): void {
+        // API only: never redirect guests to a login page; unauthenticated requests get a 401 JSON response.
+        $middleware->redirectGuestsTo(fn (): ?string => null);
+
         $middleware->alias([
             'role' => RoleMiddleware::class,
             'permission' => PermissionMiddleware::class,
