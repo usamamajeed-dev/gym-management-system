@@ -2,9 +2,15 @@
 
 declare(strict_types=1);
 
-use Illuminate\Foundation\Inspiring;
-use Illuminate\Support\Facades\Artisan;
+use Illuminate\Support\Facades\Schedule;
 
-Artisan::command('inspire', function () {
-    $this->comment(Inspiring::quote());
-})->purpose('Display an inspiring quote');
+/*
+|--------------------------------------------------------------------------
+| Scheduled tasks — run with "php artisan schedule:work" (dev) or a cron
+| entry calling "php artisan schedule:run" every minute (production).
+|--------------------------------------------------------------------------
+*/
+
+Schedule::command('contents:archive-old-news')
+    ->dailyAt('00:10')
+    ->timezone(config('gym.timezone'));

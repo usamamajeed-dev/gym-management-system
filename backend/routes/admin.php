@@ -3,6 +3,7 @@
 declare(strict_types=1);
 
 use App\Http\Controllers\Api\Admin\AuthController as AdminAuthController;
+use App\Http\Controllers\Api\Admin\ContentController;
 use App\Http\Controllers\Api\Admin\EventController;
 use App\Http\Controllers\Api\Admin\EventTypeController;
 use App\Http\Controllers\Api\Admin\GymTimingController;
@@ -71,5 +72,16 @@ Route::middleware(['auth:api', 'role:admin,api'])->group(function (): void {
         Route::get('{event}', [EventController::class, 'show'])->whereNumber('event');
         Route::put('{event}', [EventController::class, 'update'])->whereNumber('event');
         Route::delete('{event}', [EventController::class, 'destroy'])->whereNumber('event');
+    });
+
+    /** Content (news & policies) routes */
+    Route::prefix('contents')->middleware('permission:contents.manage,api')->group(function (): void {
+        Route::get('', [ContentController::class, 'index']);
+        Route::post('', [ContentController::class, 'store']);
+        Route::get('{content}', [ContentController::class, 'show'])->whereNumber('content');
+        Route::put('{content}', [ContentController::class, 'update'])->whereNumber('content');
+        Route::delete('{content}', [ContentController::class, 'destroy'])->whereNumber('content');
+        Route::post('{content}/publish', [ContentController::class, 'publish'])->whereNumber('content');
+        Route::post('{content}/archive', [ContentController::class, 'archive'])->whereNumber('content');
     });
 });
