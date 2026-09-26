@@ -3,6 +3,7 @@
 declare(strict_types=1);
 
 use App\Http\Controllers\Api\Admin\AuthController as AdminAuthController;
+use App\Http\Controllers\Api\Admin\MemberController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -26,5 +27,21 @@ Route::prefix('auth')->group(function (): void {
 });
 
 Route::middleware(['auth:api', 'role:admin,api'])->group(function (): void {
-    //
+    /** Member routes */
+    Route::prefix('members')->group(function (): void {
+        Route::middleware('permission:members.view,api')->group(function (): void {
+            Route::get('', [MemberController::class, 'index']);
+            Route::get('{member}', [MemberController::class, 'show'])->whereNumber('member');
+        });
+        Route::middleware('permission:members.manage,api')->group(function (): void {
+            Route::put('{member}', [MemberController::class, 'update'])->whereNumber('member');
+            Route::delete('{member}', [MemberController::class, 'destroy'])->whereNumber('member');
+        });
+        Route::middleware('permission:members.approve,api')->group(function (): void {
+            Route::post('{member}/approve', [MemberController::class, 'approve'])->whereNumber('member');
+            Route::post('{member}/reject', [MemberController::class, 'reject'])->whereNumber('member');
+            Route::post('{member}/activate', [MemberController::class, 'activate'])->whereNumber('member');
+            Route::post('{member}/deactivate', [MemberController::class, 'deactivate'])->whereNumber('member');
+        });
+    });
 });

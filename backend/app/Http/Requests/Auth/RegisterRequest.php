@@ -5,11 +5,14 @@ declare(strict_types=1);
 namespace App\Http\Requests\Auth;
 
 use App\Enums\Gender;
+use App\Http\Requests\Concerns\NormalisesContactFields;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 
 class RegisterRequest extends FormRequest
 {
+    use NormalisesContactFields;
+
     /** International phone in E.164 format, e.g. +14155552671. */
     public const PHONE_REGEX = '/^\+[1-9]\d{6,14}$/';
 
@@ -19,24 +22,6 @@ class RegisterRequest extends FormRequest
     public function authorize(): bool
     {
         return true;
-    }
-
-    /** Normalise before validation: lowercase email, keep only digits and "+" in phone numbers. */
-    protected function prepareForValidation(): void
-    {
-        $normalised = [];
-
-        if (is_string($this->input('email'))) {
-            $normalised['email'] = strtolower(trim($this->input('email')));
-        }
-
-        foreach (['phone', 'emergency_contact_phone'] as $field) {
-            if (is_string($this->input($field)) && $this->input($field) !== '') {
-                $normalised[$field] = preg_replace('/[^\d+]/', '', $this->input($field));
-            }
-        }
-
-        $this->merge($normalised);
     }
 
     public function rules(): array
