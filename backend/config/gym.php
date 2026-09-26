@@ -1,0 +1,24 @@
+<?php
+
+declare(strict_types=1);
+
+return [
+
+    /*
+    |--------------------------------------------------------------------------
+    | Gym settings
+    |--------------------------------------------------------------------------
+    |
+    | "timezone" is the gym's local timezone. Datetimes are stored in UTC and
+    | converted to this zone for display; gym opening hours are wall-clock
+    | times in this zone. "list_max_length" caps the ?length of admin lists.
+    |
+    */
+
+    'name' => env('GYM_NAME', 'My Gym'),
+
+    'timezone' => env('GYM_TIMEZONE', 'UTC'),
+
+    'list_max_length' => 100,
+
+];
