@@ -1,0 +1,12 @@
+# Planning docs supplied by the project owner (kept local, not committed)
+/docs/PLAN.md
+/docs/tasks/
+
+# Assistant files
+CLAUDE.md
+.claude/
+
+# OS / editor
+.DS_Store
+.idea/
+.vscode/
