@@ -8,6 +8,7 @@ use App\Enums\ErrorCode;
 use App\Exceptions\ApiException;
 use App\Models\EventType;
 use App\Repositories\EventTypeRepository;
+use App\Services\Admin\AdminDashboardService;
 use App\Services\Base\BaseService;
 use App\Support\Slug;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
@@ -46,6 +47,8 @@ class EventTypeService extends BaseService
                 'slug' => Slug::unique($this->eventTypeRepository->query(), $data['name']),
             ]);
 
+            AdminDashboardService::forgetCache();
+
             return $eventType->refresh()->loadCount('events');
         });
     }
@@ -59,6 +62,7 @@ class EventTypeService extends BaseService
             }
 
             $this->eventTypeRepository->update($eventType, $data);
+            AdminDashboardService::forgetCache();
 
             return $eventType->loadCount('events');
         });
@@ -76,5 +80,6 @@ class EventTypeService extends BaseService
         }
 
         $this->eventTypeRepository->delete($eventType);
+        AdminDashboardService::forgetCache();
     }
 }

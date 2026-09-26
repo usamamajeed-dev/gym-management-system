@@ -90,10 +90,15 @@ class User extends Authenticatable implements OAuthenticatable
         return $this->belongsTo(self::class, 'rejected_by')->withTrashed();
     }
 
-    /** Users with the member role (admins excluded). */
+    /**
+     * Users with the member role (admins excluded). Filters on the role name directly,
+     * which avoids the extra role lookup query Spatie's role() scope runs each time.
+     */
     public function scopeMembers(Builder $query): Builder
     {
-        return $query->role(RoleName::MEMBER->value, 'api');
+        return $query->whereHas('roles', fn (Builder $roles) => $roles
+            ->where('name', RoleName::MEMBER->value)
+            ->where('guard_name', 'api'));
     }
 
     public function isAdmin(): bool

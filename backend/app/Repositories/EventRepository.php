@@ -77,6 +77,32 @@ class EventRepository extends BaseRepository
         return $this->query()->published()->overlappingMonth($month)->count();
     }
 
+    /**
+     * Dashboard counts in one query: published events this month (gym time),
+     * published events not started yet, and drafts.
+     *
+     * @return array{this_month: int, upcoming: int, drafts: int}
+     */
+    public function dashboardCounts(CarbonInterface $month): array
+    {
+        $local = $month->copy()->setTimezone(DateFormat::timezone());
+        $start = $local->copy()->startOfMonth()->utc()->format('Y-m-d H:i:s');
+        $end = $local->copy()->endOfMonth()->utc()->format('Y-m-d H:i:s');
+
+        $row = $this->query()->toBase()->selectRaw(
+            'SUM(CASE WHEN is_published = 1 AND starts_at <= ? AND COALESCE(ends_at, starts_at) >= ? THEN 1 ELSE 0 END) AS this_month, '
+            .'SUM(CASE WHEN is_published = 1 AND starts_at >= ? THEN 1 ELSE 0 END) AS upcoming, '
+            .'SUM(CASE WHEN is_published = 0 THEN 1 ELSE 0 END) AS drafts',
+            [$end, $start, now()->utc()->format('Y-m-d H:i:s')],
+        )->first();
+
+        return [
+            'this_month' => (int) ($row->this_month ?? 0),
+            'upcoming' => (int) ($row->upcoming ?? 0),
+            'drafts' => (int) ($row->drafts ?? 0),
+        ];
+    }
+
     /** Published events that haven't started yet, earliest first. */
     public function upcoming(int $limit): Collection
     {

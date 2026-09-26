@@ -13,6 +13,8 @@ use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Http\Request;
+use Illuminate\Support\Collection as SupportCollection;
+use Illuminate\Support\Facades\DB;
 
 class ContentRepository extends BaseRepository
 {
@@ -75,6 +77,22 @@ class ContentRepository extends BaseRepository
             ->orderByDesc('id')
             ->limit($limit)
             ->get();
+    }
+
+    /** Content counts grouped by type and status, in one query: [{type, status, total}, …]. */
+    public function countsByTypeAndStatus(): SupportCollection
+    {
+        return $this->query()
+            ->select('type', 'status', DB::raw('COUNT(*) as total'))
+            ->groupBy('type', 'status')
+            ->toBase()
+            ->get();
+    }
+
+    /** Most recently created items of any type and status. */
+    public function latest(int $limit): Collection
+    {
+        return $this->query()->orderByDesc('id')->limit($limit)->get();
     }
 
     public function countPublished(ContentType $type): int

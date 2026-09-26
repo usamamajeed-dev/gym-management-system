@@ -7,6 +7,7 @@ namespace App\Services;
 use App\Exceptions\ApiException;
 use App\Models\Event;
 use App\Repositories\EventRepository;
+use App\Services\Admin\AdminDashboardService;
 use App\Services\Base\BaseService;
 use App\Support\DateFormat;
 use Carbon\CarbonInterface;
@@ -67,6 +68,7 @@ class EventService extends BaseService
 
         /** @var Event $event */
         $event = DB::transaction(fn () => $this->eventRepository->create($data));
+        AdminDashboardService::forgetCache();
 
         return $this->show($event->refresh());
     }
@@ -87,6 +89,7 @@ class EventService extends BaseService
         }
 
         DB::transaction(fn () => $this->eventRepository->update($event, $data));
+        AdminDashboardService::forgetCache();
 
         if ($oldImage !== null && array_key_exists('image_path', $data) && $data['image_path'] !== $oldImage) {
             Storage::disk('public')->delete($oldImage);
@@ -100,6 +103,7 @@ class EventService extends BaseService
         $image = $event->image_path;
 
         DB::transaction(fn () => $this->eventRepository->delete($event));
+        AdminDashboardService::forgetCache();
 
         if ($image !== null) {
             Storage::disk('public')->delete($image);

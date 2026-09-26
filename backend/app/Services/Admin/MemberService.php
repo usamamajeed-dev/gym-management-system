@@ -116,8 +116,11 @@ class MemberService extends BaseService
     public function updateMember(User $member, array $data): User
     {
         return DB::transaction(function () use ($member, $data): User {
-            /** @var User */
-            return $this->userRepository->update($member, $data);
+            /** @var User $updated */
+            $updated = $this->userRepository->update($member, $data);
+            AdminDashboardService::forgetCache();
+
+            return $updated;
         });
     }
 
@@ -127,6 +130,7 @@ class MemberService extends BaseService
         DB::transaction(function () use ($member): void {
             $this->revokeTokens($member);
             $this->userRepository->delete($member);
+            AdminDashboardService::forgetCache();
         });
     }
 
@@ -138,6 +142,7 @@ class MemberService extends BaseService
                 ?? throw ApiException::notFound('Member not found');
 
             $change($locked);
+            AdminDashboardService::forgetCache();
 
             return $locked;
         });

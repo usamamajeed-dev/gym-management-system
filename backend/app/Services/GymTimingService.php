@@ -6,6 +6,7 @@ namespace App\Services;
 
 use App\Models\GymTiming;
 use App\Repositories\GymTimingRepository;
+use App\Services\Admin\AdminDashboardService;
 use App\Services\Base\BaseService;
 use App\Support\DateFormat;
 use Carbon\CarbonImmutable;
@@ -51,6 +52,8 @@ class GymTimingService extends BaseService
             }
         });
 
+        AdminDashboardService::forgetCache();
+
         return $this->week();
     }
 
@@ -64,10 +67,13 @@ class GymTimingService extends BaseService
         return $this->now()->dayOfWeek;
     }
 
-    /** Open when today isn't closed and opens_at <= now < closes_at (gym time). */
-    public function isOpenNow(): bool
+    /**
+     * Open when today isn't closed and opens_at <= now < closes_at (gym time).
+     * Pass today's row when it's already loaded to skip the lookup.
+     */
+    public function isOpenNow(?GymTiming $today = null): bool
     {
-        $today = $this->today();
+        $today ??= $this->today();
 
         if ($today === null || $today->is_closed || $today->opens_at === null || $today->closes_at === null) {
             return false;

@@ -10,6 +10,7 @@ use App\Enums\RoleName;
 use App\Exceptions\ApiException;
 use App\Models\User;
 use App\Repositories\UserRepository;
+use App\Services\Admin\AdminDashboardService;
 use App\Services\Base\BaseService;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
@@ -33,6 +34,7 @@ class AuthService extends BaseService
             ]);
 
             $user->assignRole(RoleName::MEMBER->value);
+            AdminDashboardService::forgetCache();
 
             return $user;
         });

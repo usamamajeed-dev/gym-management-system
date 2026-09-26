@@ -7,9 +7,13 @@ namespace App\Repositories;
 use App\Enums\MemberStatus;
 use App\Models\User;
 use App\Repositories\Base\BaseRepository;
+use DateTimeInterface;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Http\Request;
+use Illuminate\Support\Collection as SupportCollection;
+use Illuminate\Support\Facades\DB;
 
 class UserRepository extends BaseRepository
 {
@@ -59,7 +63,7 @@ class UserRepository extends BaseRepository
     /** Users with the member role; admins are never included. */
     public function membersQuery(): Builder
     {
-        return $this->query()->role('member', 'api');
+        return $this->query()->members();
     }
 
     /** Re-read a member row with a write lock (call inside a transaction). */
@@ -67,5 +71,36 @@ class UserRepository extends BaseRepository
     {
         /** @var User|null */
         return $this->membersQuery()->whereKey($id)->lockForUpdate()->first();
+    }
+
+    /**
+     * Member counts grouped by status and active flag, in one query:
+     * [{status, is_active, total}, …]. Soft-deleted members are excluded.
+     */
+    public function memberCountsByStatus(): SupportCollection
+    {
+        return $this->membersQuery()
+            ->select('status', 'is_active', DB::raw('COUNT(*) as total'))
+            ->groupBy('status', 'is_active')
+            ->toBase()
+            ->get();
+    }
+
+    /** Registration timestamps (UTC) of members created on or after $since. */
+    public function memberRegistrationDatesSince(DateTimeInterface $since): SupportCollection
+    {
+        return $this->membersQuery()->where('created_at', '>=', $since)->toBase()->pluck('created_at');
+    }
+
+    /** Members waiting for a decision, oldest first. */
+    public function oldestPending(int $limit): Collection
+    {
+        return $this->membersQuery()->where('status', MemberStatus::PENDING->value)->orderBy('created_at')->orderBy('id')->limit($limit)->get();
+    }
+
+    /** Most recent registrations, newest first. */
+    public function newestMembers(int $limit): Collection
+    {
+        return $this->membersQuery()->orderByDesc('created_at')->orderByDesc('id')->limit($limit)->get();
     }
 }

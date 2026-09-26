@@ -40,7 +40,7 @@ class MemberDashboardService
                 'timezone' => DateFormat::timezone(),
             ],
             'today_timing' => $today !== null ? new GymTimingResource($today) : null,
-            'is_open_now' => $this->gymTimingService->isOpenNow(),
+            'is_open_now' => $this->gymTimingService->isOpenNow($today),
             'upcoming_events' => EventResource::collection($this->eventRepository->upcoming(self::UPCOMING_EVENTS)),
             'latest_news' => ContentListResource::collection(
                 $this->contentRepository->latestPublished(self::LATEST_NEWS, ContentType::NEWS),

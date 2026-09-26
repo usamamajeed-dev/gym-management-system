@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 use App\Http\Controllers\Api\Admin\AuthController as AdminAuthController;
 use App\Http\Controllers\Api\Admin\ContentController;
+use App\Http\Controllers\Api\Admin\DashboardController;
 use App\Http\Controllers\Api\Admin\EventController;
 use App\Http\Controllers\Api\Admin\EventTypeController;
 use App\Http\Controllers\Api\Admin\GymTimingController;
@@ -31,6 +32,9 @@ Route::prefix('auth')->group(function (): void {
 });
 
 Route::middleware(['auth:api', 'role:admin,api'])->group(function (): void {
+    /** Dashboard routes */
+    Route::get('dashboard', [DashboardController::class, 'index'])->middleware('permission:dashboard.view,api');
+
     /** Member routes */
     Route::prefix('members')->group(function (): void {
         Route::middleware('permission:members.view,api')->group(function (): void {

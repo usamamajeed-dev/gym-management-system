@@ -10,6 +10,7 @@ use App\Enums\ErrorCode;
 use App\Exceptions\ApiException;
 use App\Models\Content;
 use App\Repositories\ContentRepository;
+use App\Services\Admin\AdminDashboardService;
 use App\Services\Base\BaseService;
 use App\Support\DateFormat;
 use App\Support\Slug;
@@ -69,6 +70,7 @@ class ContentService extends BaseService
 
         /** @var Content $content */
         $content = DB::transaction(fn () => $this->contentRepository->create($data));
+        AdminDashboardService::forgetCache();
 
         return $content->refresh();
     }
@@ -95,6 +97,7 @@ class ContentService extends BaseService
         }
 
         DB::transaction(fn () => $this->contentRepository->update($content, $data));
+        AdminDashboardService::forgetCache();
 
         if ($oldImage !== null && array_key_exists('image_path', $data) && $data['image_path'] !== $oldImage) {
             Storage::disk('public')->delete($oldImage);
@@ -115,6 +118,7 @@ class ContentService extends BaseService
             'published_at' => $content->published_at ?? now(),
             'archived_at' => null,
         ]);
+        AdminDashboardService::forgetCache();
 
         return $content->refresh();
     }
@@ -130,6 +134,7 @@ class ContentService extends BaseService
             'status' => ContentStatus::ARCHIVED,
             'archived_at' => now(),
         ]);
+        AdminDashboardService::forgetCache();
 
         return $content->refresh();
     }
@@ -142,11 +147,17 @@ class ContentService extends BaseService
     {
         $monthStart = Carbon::now(DateFormat::timezone())->startOfMonth()->utc();
 
-        return $this->contentRepository->publishedNewsBefore($monthStart)->update([
+        $count = $this->contentRepository->publishedNewsBefore($monthStart)->update([
             'status' => ContentStatus::ARCHIVED->value,
             'archived_at' => now(),
             'updated_at' => now(),
         ]);
+
+        if ($count > 0) {
+            AdminDashboardService::forgetCache();
+        }
+
+        return $count;
     }
 
     public function deleteContent(Content $content): void
@@ -154,6 +165,7 @@ class ContentService extends BaseService
         $image = $content->image_path;
 
         DB::transaction(fn () => $this->contentRepository->delete($content));
+        AdminDashboardService::forgetCache();
 
         if ($image !== null) {
             Storage::disk('public')->delete($image);
