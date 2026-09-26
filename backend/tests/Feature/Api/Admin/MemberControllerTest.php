@@ -5,7 +5,11 @@ declare(strict_types=1);
 namespace Tests\Feature\Api\Admin;
 
 use App\Models\User;
+use App\Notifications\MemberApprovedNotification;
+use App\Notifications\MemberRejectedNotification;
+use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Notification;
 use Tests\TestCase;
 
 class MemberControllerTest extends TestCase
@@ -243,6 +247,54 @@ class MemberControllerTest extends TestCase
             409,
             'INVALID_MEMBER_TRANSITION',
         );
+    }
+
+    // ------------------------------------------------------------ notifications
+
+    public function test_approval_emails_the_member(): void
+    {
+        $this->actingAsAdmin();
+        $member = $this->makeMember();
+
+        $this->postJson(self::BASE."/{$member->id}/approve")->assertOk();
+
+        Notification::assertSentTo($member, MemberApprovedNotification::class, function (MemberApprovedNotification $n) use ($member): bool {
+            $mail = $n->toMail($member->fresh());
+
+            return str_contains($mail->subject, 'membership is approved')
+                && str_contains(implode(' ', $mail->introLines), $member->fresh()->membership_number);
+        });
+    }
+
+    public function test_rejection_emails_the_reason(): void
+    {
+        $this->actingAsAdmin();
+        $member = $this->makeMember();
+
+        $this->postJson(self::BASE."/{$member->id}/reject", ['reason' => 'Photo ID unreadable.'])->assertOk();
+
+        Notification::assertSentTo($member, MemberRejectedNotification::class, function (MemberRejectedNotification $n) use ($member): bool {
+            return str_contains(implode(' ', $n->toMail($member->fresh())->introLines), 'Photo ID unreadable.');
+        });
+    }
+
+    public function test_failed_transition_sends_nothing(): void
+    {
+        $this->actingAsAdmin();
+        $approved = User::factory()->member()->approved()->create();
+
+        $this->postJson(self::BASE."/{$approved->id}/approve")->assertStatus(409);
+        $this->postJson(self::BASE."/{$approved->id}/reject", ['reason' => 'Some reason'])->assertStatus(409);
+
+        Notification::assertNothingSent();
+    }
+
+    public function test_notifications_are_queued_after_commit(): void
+    {
+        $notification = new MemberApprovedNotification;
+
+        $this->assertTrue($notification->afterCommit);
+        $this->assertInstanceOf(ShouldQueue::class, $notification);
     }
 
     // ------------------------------------------------------------ deactivate / activate

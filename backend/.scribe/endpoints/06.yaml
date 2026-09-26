@@ -1,0 +1,136 @@
+name: 'Admin Portal — Auth'
+description: |-
+
+  Admin login for the portal. Only users with the admin role can log in here.
+endpoints:
+  -
+    custom: []
+    httpMethods:
+      - POST
+    uri: api/admin/auth/login
+    metadata:
+      custom: []
+      groupName: 'Admin Portal — Auth'
+      groupDescription: |-
+
+        Admin login for the portal. Only users with the admin role can log in here.
+      subgroup: ''
+      subgroupDescription: ''
+      title: 'Log in'
+      description: "Returns a Bearer token plus the admin's roles and permissions."
+      authenticated: false
+      deprecated: false
+    headers:
+      Content-Type: application/json
+      Accept: application/json
+    urlParameters: []
+    cleanUrlParameters: []
+    queryParameters: []
+    cleanQueryParameters: []
+    bodyParameters:
+      email:
+        custom: []
+        name: email
+        description: 'Must be a valid email address. Must not be greater than 255 characters.'
+        required: true
+        example: gbailey@example.net
+        type: string
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: false
+        deprecated: false
+      password:
+        custom: []
+        name: password
+        description: 'Must not be greater than 255 characters.'
+        required: true
+        example: '+-0pBNvYgxwmi/#iw'
+        type: string
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: false
+        deprecated: false
+    cleanBodyParameters:
+      email: gbailey@example.net
+      password: '+-0pBNvYgxwmi/#iw'
+    fileParameters: []
+    responses: []
+    responseFields: []
+    auth: []
+    controller: null
+    method: null
+    route: null
+  -
+    custom: []
+    httpMethods:
+      - POST
+    uri: api/admin/auth/logout
+    metadata:
+      custom: []
+      groupName: 'Admin Portal — Auth'
+      groupDescription: |-
+
+        Admin login for the portal. Only users with the admin role can log in here.
+      subgroup: ''
+      subgroupDescription: ''
+      title: 'Log out'
+      description: 'Revokes the token used for this request.'
+      authenticated: true
+      deprecated: false
+    headers:
+      Authorization: 'Bearer {TOKEN}'
+      Content-Type: application/json
+      Accept: application/json
+    urlParameters: []
+    cleanUrlParameters: []
+    queryParameters: []
+    cleanQueryParameters: []
+    bodyParameters: []
+    cleanBodyParameters: []
+    fileParameters: []
+    responses: []
+    responseFields: []
+    auth:
+      - headers
+      - Authorization
+      - 'Bearer 6g43cv8PD1aE5beadkZfhV6'
+    controller: null
+    method: null
+    route: null
+  -
+    custom: []
+    httpMethods:
+      - GET
+    uri: api/admin/auth/me
+    metadata:
+      custom: []
+      groupName: 'Admin Portal — Auth'
+      groupDescription: |-
+
+        Admin login for the portal. Only users with the admin role can log in here.
+      subgroup: ''
+      subgroupDescription: ''
+      title: 'Current admin'
+      description: "Includes the admin's roles and permissions."
+      authenticated: true
+      deprecated: false
+    headers:
+      Authorization: 'Bearer {TOKEN}'
+      Content-Type: application/json
+      Accept: application/json
+    urlParameters: []
+    cleanUrlParameters: []
+    queryParameters: []
+    cleanQueryParameters: []
+    bodyParameters: []
+    cleanBodyParameters: []
+    fileParameters: []
+    responses: []
+    responseFields: []
+    auth:
+      - headers
+      - Authorization
+      - 'Bearer 6g43cv8PD1aE5beadkZfhV6'
+    controller: null
+    method: null
+    route: null

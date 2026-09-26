@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Providers;
 
 use Illuminate\Cache\RateLimiting\Limit;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\ServiceProvider;
@@ -31,6 +32,9 @@ class AppServiceProvider extends ServiceProvider
         Passport::personalAccessTokensExpireIn(now()->addDays(30));
 
         $this->configureRateLimiting();
+
+        // Surface N+1 queries during development and tests.
+        Model::preventLazyLoading(! $this->app->isProduction());
     }
 
     /**

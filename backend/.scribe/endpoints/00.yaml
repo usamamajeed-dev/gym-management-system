@@ -1,0 +1,290 @@
+name: 'Member App — Auth'
+description: |-
+
+  Member registration and login. A new member stays pending until an admin
+  approves them; only approved, active members can log in.
+endpoints:
+  -
+    custom: []
+    httpMethods:
+      - POST
+    uri: api/v1/auth/register
+    metadata:
+      custom: []
+      groupName: 'Member App — Auth'
+      groupDescription: |-
+
+        Member registration and login. A new member stays pending until an admin
+        approves them; only approved, active members can log in.
+      subgroup: ''
+      subgroupDescription: ''
+      title: Register
+      description: |-
+        Submit a membership registration. No token is returned: the member can
+        log in once an admin approves the registration.
+      authenticated: false
+      deprecated: false
+    headers:
+      Content-Type: application/json
+      Accept: application/json
+    urlParameters: []
+    cleanUrlParameters: []
+    queryParameters: []
+    cleanQueryParameters: []
+    bodyParameters:
+      name:
+        custom: []
+        name: name
+        description: 'Must be at least 2 characters. Must not be greater than 100 characters.'
+        required: true
+        example: b
+        type: string
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: false
+        deprecated: false
+      email:
+        custom: []
+        name: email
+        description: 'Must be a valid email address. Must not be greater than 255 characters.'
+        required: true
+        example: zbailey@example.net
+        type: string
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: false
+        deprecated: false
+      phone:
+        custom: []
+        name: phone
+        description: 'Must match the regex /^\+[1-9]\d{6,14}$/. Must not be greater than 20 characters.'
+        required: true
+        example: iyvdljnikhwaykcm
+        type: string
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: false
+        deprecated: false
+      password:
+        custom: []
+        name: password
+        description: 'Must match the regex /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^A-Za-z0-9]).+$/. Must be at least 8 characters.'
+        required: true
+        example: '/kXaz<m5L[)~=NG5a:'
+        type: string
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: false
+        deprecated: false
+      date_of_birth:
+        custom: []
+        name: date_of_birth
+        description: 'Must be a valid date. Must be a date before <code>today</code>. Must be a date after <code>1900-01-01</code>.'
+        required: false
+        example: '2010-04-23'
+        type: string
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: true
+        deprecated: false
+      gender:
+        custom: []
+        name: gender
+        description: ''
+        required: false
+        example: female
+        type: string
+        enumValues:
+          - male
+          - female
+          - other
+        exampleWasSpecified: false
+        nullable: true
+        deprecated: false
+      address:
+        custom: []
+        name: address
+        description: 'Must not be greater than 255 characters.'
+        required: false
+        example: g
+        type: string
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: true
+        deprecated: false
+      emergency_contact_name:
+        custom: []
+        name: emergency_contact_name
+        description: 'Must not be greater than 100 characters.'
+        required: false
+        example: z
+        type: string
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: true
+        deprecated: false
+      emergency_contact_phone:
+        custom: []
+        name: emergency_contact_phone
+        description: 'Must match the regex /^\+[1-9]\d{6,14}$/. Must not be greater than 20 characters.'
+        required: false
+        example: miyvdljnikhwaykc
+        type: string
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: true
+        deprecated: false
+    cleanBodyParameters:
+      name: b
+      email: zbailey@example.net
+      phone: iyvdljnikhwaykcm
+      password: '/kXaz<m5L[)~=NG5a:'
+      date_of_birth: '2010-04-23'
+      gender: female
+      address: g
+      emergency_contact_name: z
+      emergency_contact_phone: miyvdljnikhwaykc
+    fileParameters: []
+    responses: []
+    responseFields: []
+    auth: []
+    controller: null
+    method: null
+    route: null
+  -
+    custom: []
+    httpMethods:
+      - POST
+    uri: api/v1/auth/login
+    metadata:
+      custom: []
+      groupName: 'Member App — Auth'
+      groupDescription: |-
+
+        Member registration and login. A new member stays pending until an admin
+        approves them; only approved, active members can log in.
+      subgroup: ''
+      subgroupDescription: ''
+      title: 'Log in'
+      description: |-
+        Returns a Bearer token for an approved, active member. Pending, rejected
+        and inactive members get 403 with error_code MEMBER_PENDING,
+        MEMBER_REJECTED (plus errors.rejection_reason) or MEMBER_INACTIVE.
+      authenticated: false
+      deprecated: false
+    headers:
+      Content-Type: application/json
+      Accept: application/json
+    urlParameters: []
+    cleanUrlParameters: []
+    queryParameters: []
+    cleanQueryParameters: []
+    bodyParameters:
+      email:
+        custom: []
+        name: email
+        description: 'Must be a valid email address. Must not be greater than 255 characters.'
+        required: true
+        example: gbailey@example.net
+        type: string
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: false
+        deprecated: false
+      password:
+        custom: []
+        name: password
+        description: 'Must not be greater than 255 characters.'
+        required: true
+        example: '+-0pBNvYgxwmi/#iw'
+        type: string
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: false
+        deprecated: false
+    cleanBodyParameters:
+      email: gbailey@example.net
+      password: '+-0pBNvYgxwmi/#iw'
+    fileParameters: []
+    responses: []
+    responseFields: []
+    auth: []
+    controller: null
+    method: null
+    route: null
+  -
+    custom: []
+    httpMethods:
+      - POST
+    uri: api/v1/auth/logout
+    metadata:
+      custom: []
+      groupName: 'Member App — Auth'
+      groupDescription: |-
+
+        Member registration and login. A new member stays pending until an admin
+        approves them; only approved, active members can log in.
+      subgroup: ''
+      subgroupDescription: ''
+      title: 'Log out'
+      description: 'Revokes the token used for this request.'
+      authenticated: true
+      deprecated: false
+    headers:
+      Authorization: 'Bearer {TOKEN}'
+      Content-Type: application/json
+      Accept: application/json
+    urlParameters: []
+    cleanUrlParameters: []
+    queryParameters: []
+    cleanQueryParameters: []
+    bodyParameters: []
+    cleanBodyParameters: []
+    fileParameters: []
+    responses: []
+    responseFields: []
+    auth:
+      - headers
+      - Authorization
+      - 'Bearer 6g43cv8PD1aE5beadkZfhV6'
+    controller: null
+    method: null
+    route: null
+  -
+    custom: []
+    httpMethods:
+      - GET
+    uri: api/v1/auth/me
+    metadata:
+      custom: []
+      groupName: 'Member App — Auth'
+      groupDescription: |-
+
+        Member registration and login. A new member stays pending until an admin
+        approves them; only approved, active members can log in.
+      subgroup: ''
+      subgroupDescription: ''
+      title: 'Current member'
+      description: ''
+      authenticated: true
+      deprecated: false
+    headers:
+      Authorization: 'Bearer {TOKEN}'
+      Content-Type: application/json
+      Accept: application/json
+    urlParameters: []
+    cleanUrlParameters: []
+    queryParameters: []
+    cleanQueryParameters: []
+    bodyParameters: []
+    cleanBodyParameters: []
+    fileParameters: []
+    responses: []
+    responseFields: []
+    auth:
+      - headers
+      - Authorization
+      - 'Bearer 6g43cv8PD1aE5beadkZfhV6'
+    controller: null
+    method: null
+    route: null

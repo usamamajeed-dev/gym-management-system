@@ -1,0 +1,574 @@
+name: 'Admin Portal — Events'
+description: |-
+
+  Gym events with an optional image. Send dates as local gym time ("2026-10-05 18:00")
+  or ISO-8601 with an offset. Create and update with an image as multipart; for updates,
+  use POST with _method=PUT.
+endpoints:
+  -
+    custom: []
+    httpMethods:
+      - GET
+    uri: api/admin/events
+    metadata:
+      custom: []
+      groupName: 'Admin Portal — Events'
+      groupDescription: |-
+
+        Gym events with an optional image. Send dates as local gym time ("2026-10-05 18:00")
+        or ISO-8601 with an offset. Create and update with an image as multipart; for updates,
+        use POST with _method=PUT.
+      subgroup: ''
+      subgroupDescription: ''
+      title: 'List events'
+      description: ''
+      authenticated: true
+      deprecated: false
+    headers:
+      Authorization: 'Bearer {TOKEN}'
+      Content-Type: application/json
+      Accept: application/json
+    urlParameters: []
+    cleanUrlParameters: []
+    queryParameters:
+      search:
+        custom: []
+        name: search
+        description: 'Title or location.'
+        required: false
+        example: yoga
+        type: string
+        enumValues: []
+        exampleWasSpecified: true
+        nullable: false
+        deprecated: false
+      event_type_id:
+        custom: []
+        name: event_type_id
+        description: 'Filter by type.'
+        required: false
+        example: 1
+        type: integer
+        enumValues: []
+        exampleWasSpecified: true
+        nullable: false
+        deprecated: false
+      is_published:
+        custom: []
+        name: is_published
+        description: 'Published (true) or draft (false).'
+        required: false
+        example: true
+        type: boolean
+        enumValues: []
+        exampleWasSpecified: true
+        nullable: false
+        deprecated: false
+      from:
+        custom: []
+        name: from
+        description: 'Start date (Y-m-d, gym time), inclusive.'
+        required: false
+        example: '2026-10-01'
+        type: string
+        enumValues: []
+        exampleWasSpecified: true
+        nullable: false
+        deprecated: false
+      to:
+        custom: []
+        name: to
+        description: 'End date (Y-m-d, gym time), inclusive.'
+        required: false
+        example: '2026-10-31'
+        type: string
+        enumValues: []
+        exampleWasSpecified: true
+        nullable: false
+        deprecated: false
+      column:
+        custom: []
+        name: column
+        description: 'Sort column: id, title, starts_at, created_at.'
+        required: false
+        example: starts_at
+        type: string
+        enumValues: []
+        exampleWasSpecified: true
+        nullable: false
+        deprecated: false
+      dir:
+        custom: []
+        name: dir
+        description: 'asc or desc.'
+        required: false
+        example: asc
+        type: string
+        enumValues: []
+        exampleWasSpecified: true
+        nullable: false
+        deprecated: false
+      length:
+        custom: []
+        name: length
+        description: 'Page size (max 100).'
+        required: false
+        example: 10
+        type: integer
+        enumValues: []
+        exampleWasSpecified: true
+        nullable: false
+        deprecated: false
+      page:
+        custom: []
+        name: page
+        description: 'Page number.'
+        required: false
+        example: 1
+        type: integer
+        enumValues: []
+        exampleWasSpecified: true
+        nullable: false
+        deprecated: false
+    cleanQueryParameters:
+      search: yoga
+      event_type_id: 1
+      is_published: true
+      from: '2026-10-01'
+      to: '2026-10-31'
+      column: starts_at
+      dir: asc
+      length: 10
+      page: 1
+    bodyParameters: []
+    cleanBodyParameters: []
+    fileParameters: []
+    responses: []
+    responseFields: []
+    auth:
+      - headers
+      - Authorization
+      - 'Bearer 6g43cv8PD1aE5beadkZfhV6'
+    controller: null
+    method: null
+    route: null
+  -
+    custom: []
+    httpMethods:
+      - POST
+    uri: api/admin/events
+    metadata:
+      custom: []
+      groupName: 'Admin Portal — Events'
+      groupDescription: |-
+
+        Gym events with an optional image. Send dates as local gym time ("2026-10-05 18:00")
+        or ISO-8601 with an offset. Create and update with an image as multipart; for updates,
+        use POST with _method=PUT.
+      subgroup: ''
+      subgroupDescription: ''
+      title: 'Create an event'
+      description: ''
+      authenticated: true
+      deprecated: false
+    headers:
+      Authorization: 'Bearer {TOKEN}'
+      Content-Type: multipart/form-data
+      Accept: application/json
+    urlParameters: []
+    cleanUrlParameters: []
+    queryParameters: []
+    cleanQueryParameters: []
+    bodyParameters:
+      event_type_id:
+        custom: []
+        name: event_type_id
+        description: 'Must match an existing stored value.'
+        required: true
+        example: 16
+        type: integer
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: false
+        deprecated: false
+      title:
+        custom: []
+        name: title
+        description: 'Must not be greater than 150 characters.'
+        required: true
+        example: 'n'
+        type: string
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: false
+        deprecated: false
+      description:
+        custom: []
+        name: description
+        description: 'Must not be greater than 5000 characters.'
+        required: false
+        example: 'Animi quos velit et fugiat.'
+        type: string
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: true
+        deprecated: false
+      location:
+        custom: []
+        name: location
+        description: 'Must not be greater than 150 characters.'
+        required: false
+        example: d
+        type: string
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: true
+        deprecated: false
+      starts_at:
+        custom: []
+        name: starts_at
+        description: 'Must be a valid date.'
+        required: true
+        example: '2026-09-26T18:21:32'
+        type: string
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: false
+        deprecated: false
+      ends_at:
+        custom: []
+        name: ends_at
+        description: 'Must be a valid date. Must be a date after or equal to <code>starts_at</code>.'
+        required: false
+        example: '2052-10-19'
+        type: string
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: true
+        deprecated: false
+      capacity:
+        custom: []
+        name: capacity
+        description: 'Must be at least 1.'
+        required: false
+        example: 22
+        type: integer
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: true
+        deprecated: false
+      is_published:
+        custom: []
+        name: is_published
+        description: ''
+        required: false
+        example: false
+        type: boolean
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: false
+        deprecated: false
+      image:
+        custom: []
+        name: image
+        description: 'Must be an image. Must not be greater than 5120 kilobytes.'
+        required: false
+        example: null
+        type: file
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: true
+        deprecated: false
+    cleanBodyParameters:
+      event_type_id: 16
+      title: 'n'
+      description: 'Animi quos velit et fugiat.'
+      location: d
+      starts_at: '2026-09-26T18:21:32'
+      ends_at: '2052-10-19'
+      capacity: 22
+      is_published: false
+    fileParameters:
+      image: null
+    responses: []
+    responseFields: []
+    auth:
+      - headers
+      - Authorization
+      - 'Bearer 6g43cv8PD1aE5beadkZfhV6'
+    controller: null
+    method: null
+    route: null
+  -
+    custom: []
+    httpMethods:
+      - GET
+    uri: 'api/admin/events/{event_id}'
+    metadata:
+      custom: []
+      groupName: 'Admin Portal — Events'
+      groupDescription: |-
+
+        Gym events with an optional image. Send dates as local gym time ("2026-10-05 18:00")
+        or ISO-8601 with an offset. Create and update with an image as multipart; for updates,
+        use POST with _method=PUT.
+      subgroup: ''
+      subgroupDescription: ''
+      title: 'Show an event'
+      description: ''
+      authenticated: true
+      deprecated: false
+    headers:
+      Authorization: 'Bearer {TOKEN}'
+      Content-Type: application/json
+      Accept: application/json
+    urlParameters:
+      event_id:
+        custom: []
+        name: event_id
+        description: 'The ID of the event.'
+        required: true
+        example: 16
+        type: integer
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: false
+        deprecated: false
+    cleanUrlParameters:
+      event_id: 16
+    queryParameters: []
+    cleanQueryParameters: []
+    bodyParameters: []
+    cleanBodyParameters: []
+    fileParameters: []
+    responses: []
+    responseFields: []
+    auth:
+      - headers
+      - Authorization
+      - 'Bearer 6g43cv8PD1aE5beadkZfhV6'
+    controller: null
+    method: null
+    route: null
+  -
+    custom: []
+    httpMethods:
+      - PUT
+    uri: 'api/admin/events/{event_id}'
+    metadata:
+      custom: []
+      groupName: 'Admin Portal — Events'
+      groupDescription: |-
+
+        Gym events with an optional image. Send dates as local gym time ("2026-10-05 18:00")
+        or ISO-8601 with an offset. Create and update with an image as multipart; for updates,
+        use POST with _method=PUT.
+      subgroup: ''
+      subgroupDescription: ''
+      title: 'Update an event'
+      description: 'Partial update. Send remove_image=1 to delete the current image.'
+      authenticated: true
+      deprecated: false
+    headers:
+      Authorization: 'Bearer {TOKEN}'
+      Content-Type: multipart/form-data
+      Accept: application/json
+    urlParameters:
+      event_id:
+        custom: []
+        name: event_id
+        description: 'The ID of the event.'
+        required: true
+        example: 16
+        type: integer
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: false
+        deprecated: false
+    cleanUrlParameters:
+      event_id: 16
+    queryParameters: []
+    cleanQueryParameters: []
+    bodyParameters:
+      event_type_id:
+        custom: []
+        name: event_type_id
+        description: 'Must match an existing stored value.'
+        required: false
+        example: 16
+        type: integer
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: false
+        deprecated: false
+      title:
+        custom: []
+        name: title
+        description: 'Must not be greater than 150 characters.'
+        required: false
+        example: 'n'
+        type: string
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: false
+        deprecated: false
+      description:
+        custom: []
+        name: description
+        description: 'Must not be greater than 5000 characters.'
+        required: false
+        example: 'Animi quos velit et fugiat.'
+        type: string
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: true
+        deprecated: false
+      location:
+        custom: []
+        name: location
+        description: 'Must not be greater than 150 characters.'
+        required: false
+        example: d
+        type: string
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: true
+        deprecated: false
+      starts_at:
+        custom: []
+        name: starts_at
+        description: 'Must be a valid date.'
+        required: false
+        example: '2026-09-26T18:21:32'
+        type: string
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: false
+        deprecated: false
+      ends_at:
+        custom: []
+        name: ends_at
+        description: 'Must be a valid date.'
+        required: false
+        example: '2026-09-26T18:21:32'
+        type: string
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: true
+        deprecated: false
+      capacity:
+        custom: []
+        name: capacity
+        description: 'Must be at least 1.'
+        required: false
+        example: 40
+        type: integer
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: true
+        deprecated: false
+      is_published:
+        custom: []
+        name: is_published
+        description: ''
+        required: false
+        example: false
+        type: boolean
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: false
+        deprecated: false
+      image:
+        custom: []
+        name: image
+        description: 'Must be an image. Must not be greater than 5120 kilobytes.'
+        required: false
+        example: null
+        type: file
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: true
+        deprecated: false
+      remove_image:
+        custom: []
+        name: remove_image
+        description: ''
+        required: false
+        example: true
+        type: boolean
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: false
+        deprecated: false
+    cleanBodyParameters:
+      event_type_id: 16
+      title: 'n'
+      description: 'Animi quos velit et fugiat.'
+      location: d
+      starts_at: '2026-09-26T18:21:32'
+      ends_at: '2026-09-26T18:21:32'
+      capacity: 40
+      is_published: false
+      remove_image: true
+    fileParameters:
+      image: null
+    responses: []
+    responseFields: []
+    auth:
+      - headers
+      - Authorization
+      - 'Bearer 6g43cv8PD1aE5beadkZfhV6'
+    controller: null
+    method: null
+    route: null
+  -
+    custom: []
+    httpMethods:
+      - DELETE
+    uri: 'api/admin/events/{event_id}'
+    metadata:
+      custom: []
+      groupName: 'Admin Portal — Events'
+      groupDescription: |-
+
+        Gym events with an optional image. Send dates as local gym time ("2026-10-05 18:00")
+        or ISO-8601 with an offset. Create and update with an image as multipart; for updates,
+        use POST with _method=PUT.
+      subgroup: ''
+      subgroupDescription: ''
+      title: 'Delete an event'
+      description: 'Also deletes its image.'
+      authenticated: true
+      deprecated: false
+    headers:
+      Authorization: 'Bearer {TOKEN}'
+      Content-Type: application/json
+      Accept: application/json
+    urlParameters:
+      event_id:
+        custom: []
+        name: event_id
+        description: 'The ID of the event.'
+        required: true
+        example: 16
+        type: integer
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: false
+        deprecated: false
+    cleanUrlParameters:
+      event_id: 16
+    queryParameters: []
+    cleanQueryParameters: []
+    bodyParameters: []
+    cleanBodyParameters: []
+    fileParameters: []
+    responses: []
+    responseFields: []
+    auth:
+      - headers
+      - Authorization
+      - 'Bearer 6g43cv8PD1aE5beadkZfhV6'
+    controller: null
+    method: null
+    route: null

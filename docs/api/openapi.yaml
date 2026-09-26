@@ -1,0 +1,1625 @@
+openapi: 3.0.3
+info:
+  title: 'Gym Management API'
+  description: 'Backend API for the Gym Management System: the member app (/api/v1) and the admin portal (/api/admin).'
+  version: 1.0.0
+servers:
+  -
+    url: 'http://localhost:8000'
+tags:
+  -
+    name: 'Member App — Auth'
+    description: "\nMember registration and login. A new member stays pending until an admin\napproves them; only approved, active members can log in."
+  -
+    name: 'Member App — Dashboard'
+    description: ''
+  -
+    name: 'Member App — Gym Timings'
+    description: ''
+  -
+    name: 'Member App — Events'
+    description: "\nPublished events only."
+  -
+    name: 'Member App — News & Policies'
+    description: "\n\"current\" lists published items; \"archive\" lists older, archived items. Drafts are never shown."
+  -
+    name: 'Member App — Profile'
+    description: ''
+  -
+    name: 'Admin Portal — Auth'
+    description: "\nAdmin login for the portal. Only users with the admin role can log in here."
+  -
+    name: 'Admin Portal — Dashboard'
+    description: ''
+  -
+    name: 'Admin Portal — Members'
+    description: "\nManage gym members and their registrations. Approve or reject pending\nregistrations, activate or deactivate approved members. Invalid transitions\nreturn 409 with error_code INVALID_MEMBER_TRANSITION."
+  -
+    name: 'Admin Portal — Gym Timings'
+    description: "\nWeekly opening hours. Times are \"HH:mm\" in the gym's timezone."
+  -
+    name: 'Admin Portal — Event Types'
+    description: "\nKinds of gym events (Class, Workshop, Competition…) with a badge colour.\nA type that is used by events can't be deleted (409 EVENT_TYPE_IN_USE); deactivate it instead."
+  -
+    name: 'Admin Portal — Events'
+    description: "\nGym events with an optional image. Send dates as local gym time (\"2026-10-05 18:00\")\nor ISO-8601 with an offset. Create and update with an image as multipart; for updates,\nuse POST with _method=PUT."
+  -
+    name: 'Admin Portal — News & Policies'
+    description: "\nNews items and policies share these endpoints (\"type\" = news or policy).\nLifecycle: draft → published → archived; archived items can be re-published.\nInvalid transitions return 409 with error_code INVALID_CONTENT_TRANSITION.\nSend create and update with an image as multipart; for updates, use POST with _method=PUT."
+components:
+  securitySchemes:
+    default:
+      type: http
+      scheme: bearer
+      description: 'Get a token from <code>POST /api/v1/auth/login</code> (members) or <code>POST /api/admin/auth/login</code> (admins).'
+security:
+  -
+    default: []
+paths:
+  /api/v1/auth/register:
+    post:
+      summary: Register
+      operationId: register
+      description: "Submit a membership registration. No token is returned: the member can\nlog in once an admin approves the registration."
+      parameters: []
+      responses: {  }
+      tags:
+        - 'Member App — Auth'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                  description: 'Must be at least 2 characters. Must not be greater than 100 characters.'
+                  example: b
+                email:
+                  type: string
+                  description: 'Must be a valid email address. Must not be greater than 255 characters.'
+                  example: zbailey@example.net
+                phone:
+                  type: string
+                  description: 'Must match the regex /^\+[1-9]\d{6,14}$/. Must not be greater than 20 characters.'
+                  example: iyvdljnikhwaykcm
+                password:
+                  type: string
+                  description: 'Must match the regex /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^A-Za-z0-9]).+$/. Must be at least 8 characters.'
+                  example: '/kXaz<m5L[)~=NG5a:'
+                date_of_birth:
+                  type: string
+                  description: 'Must be a valid date. Must be a date before <code>today</code>. Must be a date after <code>1900-01-01</code>.'
+                  example: '2010-04-23'
+                  nullable: true
+                gender:
+                  type: string
+                  description: ''
+                  example: female
+                  enum:
+                    - male
+                    - female
+                    - other
+                  nullable: true
+                address:
+                  type: string
+                  description: 'Must not be greater than 255 characters.'
+                  example: g
+                  nullable: true
+                emergency_contact_name:
+                  type: string
+                  description: 'Must not be greater than 100 characters.'
+                  example: z
+                  nullable: true
+                emergency_contact_phone:
+                  type: string
+                  description: 'Must match the regex /^\+[1-9]\d{6,14}$/. Must not be greater than 20 characters.'
+                  example: miyvdljnikhwaykc
+                  nullable: true
+              required:
+                - name
+                - email
+                - phone
+                - password
+      security: []
+  /api/v1/auth/login:
+    post:
+      summary: 'Log in'
+      operationId: logIn
+      description: "Returns a Bearer token for an approved, active member. Pending, rejected\nand inactive members get 403 with error_code MEMBER_PENDING,\nMEMBER_REJECTED (plus errors.rejection_reason) or MEMBER_INACTIVE."
+      parameters: []
+      responses: {  }
+      tags:
+        - 'Member App — Auth'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email:
+                  type: string
+                  description: 'Must be a valid email address. Must not be greater than 255 characters.'
+                  example: gbailey@example.net
+                password:
+                  type: string
+                  description: 'Must not be greater than 255 characters.'
+                  example: '+-0pBNvYgxwmi/#iw'
+              required:
+                - email
+                - password
+      security: []
+  /api/v1/auth/logout:
+    post:
+      summary: 'Log out'
+      operationId: logOut
+      description: 'Revokes the token used for this request.'
+      parameters: []
+      responses: {  }
+      tags:
+        - 'Member App — Auth'
+  /api/v1/auth/me:
+    get:
+      summary: 'Current member'
+      operationId: currentMember
+      description: ''
+      parameters: []
+      responses: {  }
+      tags:
+        - 'Member App — Auth'
+  /api/v1/dashboard:
+    get:
+      summary: 'Home screen'
+      operationId: homeScreen
+      description: "The member, gym name and timezone, today's opening hours, whether the gym is open now,\nthe next 3 events, the latest 3 news items, and counts for this month's events and policies."
+      parameters: []
+      responses:
+        200:
+          description: ''
+          content:
+            application/json:
+              schema:
+                type: object
+                example:
+                  success: true
+                  message: 'Dashboard retrieved successfully'
+                  data:
+                    member:
+                      id: 2
+                      name: 'Jane Doe'
+                      membership_number: GYM-2026-00002
+                      status: approved
+                      is_active: true
+                    gym:
+                      name: 'My Gym'
+                      timezone: UTC
+                    today_timing:
+                      day_of_week: 1
+                      day_name: Monday
+                      is_closed: false
+                      opens_at: '06:00'
+                      closes_at: '22:00'
+                      updated_at: '2026-09-26T18:00:00+00:00'
+                    is_open_now: true
+                    upcoming_events: []
+                    latest_news: []
+                    counts:
+                      events_this_month: 5
+                      policies: 4
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: 'Dashboard retrieved successfully'
+                  data:
+                    type: object
+                    properties:
+                      member:
+                        type: object
+                        properties:
+                          id:
+                            type: integer
+                            example: 2
+                          name:
+                            type: string
+                            example: 'Jane Doe'
+                          membership_number:
+                            type: string
+                            example: GYM-2026-00002
+                          status:
+                            type: string
+                            example: approved
+                          is_active:
+                            type: boolean
+                            example: true
+                      gym:
+                        type: object
+                        properties:
+                          name:
+                            type: string
+                            example: 'My Gym'
+                          timezone:
+                            type: string
+                            example: UTC
+                      today_timing:
+                        type: object
+                        properties:
+                          day_of_week:
+                            type: integer
+                            example: 1
+                          day_name:
+                            type: string
+                            example: Monday
+                          is_closed:
+                            type: boolean
+                            example: false
+                          opens_at:
+                            type: string
+                            example: '06:00'
+                          closes_at:
+                            type: string
+                            example: '22:00'
+                          updated_at:
+                            type: string
+                            example: '2026-09-26T18:00:00+00:00'
+                      is_open_now:
+                        type: boolean
+                        example: true
+                      upcoming_events:
+                        type: array
+                        example: []
+                      latest_news:
+                        type: array
+                        example: []
+                      counts:
+                        type: object
+                        properties:
+                          events_this_month:
+                            type: integer
+                            example: 5
+                          policies:
+                            type: integer
+                            example: 4
+      tags:
+        - 'Member App — Dashboard'
+  /api/v1/gym-timings:
+    get:
+      summary: 'Weekly opening hours'
+      operationId: weeklyOpeningHours
+      description: "Seven days, Monday first, with today's day (0 = Sunday … 6 = Saturday), whether the gym\nis open now, and the timezone the times are in."
+      parameters: []
+      responses: {  }
+      tags:
+        - 'Member App — Gym Timings'
+  /api/v1/events:
+    get:
+      summary: 'Events in a month'
+      operationId: eventsInAMonth
+      description: 'Published events that overlap the month (gym time), earliest first. Not paginated.'
+      parameters:
+        -
+          in: query
+          name: month
+          description: 'The month as YYYY-MM. Defaults to the current month.'
+          example: 2026-10
+          required: false
+          schema:
+            type: string
+            description: 'The month as YYYY-MM. Defaults to the current month.'
+            example: 2026-10
+      responses: {  }
+      tags:
+        - 'Member App — Events'
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                month:
+                  type: string
+                  description: 'Must be a valid date in the format <code>Y-m</code>.'
+                  example: 2026-09
+                  nullable: true
+  '/api/v1/events/{event_id}':
+    get:
+      summary: 'Show an event'
+      operationId: showAnEvent
+      description: "404 if the event doesn't exist or isn't published."
+      parameters: []
+      responses: {  }
+      tags:
+        - 'Member App — Events'
+    parameters:
+      -
+        in: path
+        name: event_id
+        description: 'The ID of the event.'
+        example: 16
+        required: true
+        schema:
+          type: integer
+  /api/v1/contents:
+    get:
+      summary: 'List news or policies'
+      operationId: listNewsOrPolicies
+      description: 'Paginated, 10 per page, newest first. List items have no body.'
+      parameters:
+        -
+          in: query
+          name: type
+          description: 'news or policy.'
+          example: news
+          required: true
+          schema:
+            type: string
+            description: 'news or policy.'
+            example: news
+        -
+          in: query
+          name: period
+          description: 'current (default) or archive.'
+          example: current
+          required: false
+          schema:
+            type: string
+            description: 'current (default) or archive.'
+            example: current
+        -
+          in: query
+          name: page
+          description: 'Page number.'
+          example: 1
+          required: false
+          schema:
+            type: integer
+            description: 'Page number.'
+            example: 1
+      responses: {  }
+      tags:
+        - 'Member App — News & Policies'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                type:
+                  type: string
+                  description: ''
+                  example: news
+                  enum:
+                    - news
+                    - policy
+                period:
+                  type: string
+                  description: ''
+                  example: current
+                  enum:
+                    - current
+                    - archive
+                  nullable: true
+                page:
+                  type: integer
+                  description: 'Must be at least 1.'
+                  example: 16
+                  nullable: true
+              required:
+                - type
+  '/api/v1/contents/{content_id}':
+    get:
+      summary: 'Show a news item or policy'
+      operationId: showANewsItemOrPolicy
+      description: 'Includes the body. 404 for drafts.'
+      parameters: []
+      responses: {  }
+      tags:
+        - 'Member App — News & Policies'
+    parameters:
+      -
+        in: path
+        name: content_id
+        description: 'The ID of the content.'
+        example: 16
+        required: true
+        schema:
+          type: integer
+  /api/v1/profile:
+    get:
+      summary: 'My profile'
+      operationId: myProfile
+      description: "The logged-in member's details, including membership number and status."
+      parameters: []
+      responses: {  }
+      tags:
+        - 'Member App — Profile'
+  /api/admin/auth/login:
+    post:
+      summary: 'Log in'
+      operationId: logIn
+      description: "Returns a Bearer token plus the admin's roles and permissions."
+      parameters: []
+      responses: {  }
+      tags:
+        - 'Admin Portal — Auth'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email:
+                  type: string
+                  description: 'Must be a valid email address. Must not be greater than 255 characters.'
+                  example: gbailey@example.net
+                password:
+                  type: string
+                  description: 'Must not be greater than 255 characters.'
+                  example: '+-0pBNvYgxwmi/#iw'
+              required:
+                - email
+                - password
+      security: []
+  /api/admin/auth/logout:
+    post:
+      summary: 'Log out'
+      operationId: logOut
+      description: 'Revokes the token used for this request.'
+      parameters: []
+      responses: {  }
+      tags:
+        - 'Admin Portal — Auth'
+  /api/admin/auth/me:
+    get:
+      summary: 'Current admin'
+      operationId: currentAdmin
+      description: "Includes the admin's roles and permissions."
+      parameters: []
+      responses: {  }
+      tags:
+        - 'Admin Portal — Auth'
+  /api/admin/dashboard:
+    get:
+      summary: Overview
+      operationId: overview
+      description: "Member counts, registrations for the last six months, the oldest pending and newest members,\nevent and content counts with the next events and latest content, and the gym's open status.\nCached for up to 60 seconds; changes made through the API refresh it immediately."
+      parameters: []
+      responses:
+        200:
+          description: ''
+          content:
+            application/json:
+              schema:
+                type: object
+                example:
+                  success: true
+                  message: 'Dashboard retrieved successfully'
+                  data:
+                    members:
+                      total: 120
+                      pending: 7
+                      approved: 105
+                      rejected: 8
+                      active: 98
+                      inactive: 7
+                      new_this_month: 12
+                    registrations_by_month:
+                      -
+                        month: 2026-05
+                        count: 9
+                      -
+                        month: 2026-06
+                        count: 14
+                      -
+                        month: 2026-07
+                        count: 0
+                      -
+                        month: 2026-08
+                        count: 21
+                      -
+                        month: 2026-09
+                        count: 17
+                      -
+                        month: 2026-10
+                        count: 12
+                    pending_members: []
+                    recent_members: []
+                    events:
+                      this_month: 6
+                      upcoming: 4
+                      drafts: 2
+                      next: []
+                    contents:
+                      news_published: 14
+                      policies_published: 5
+                      drafts: 3
+                      archived: 20
+                      latest: []
+                    gym:
+                      is_open_now: true
+                      today_timing:
+                        day_of_week: 1
+                        day_name: Monday
+                        is_closed: false
+                        opens_at: '06:00'
+                        closes_at: '22:00'
+                        updated_at: '2026-10-01T09:00:00+00:00'
+                      timezone: UTC
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: 'Dashboard retrieved successfully'
+                  data:
+                    type: object
+                    properties:
+                      members:
+                        type: object
+                        properties:
+                          total:
+                            type: integer
+                            example: 120
+                          pending:
+                            type: integer
+                            example: 7
+                          approved:
+                            type: integer
+                            example: 105
+                          rejected:
+                            type: integer
+                            example: 8
+                          active:
+                            type: integer
+                            example: 98
+                          inactive:
+                            type: integer
+                            example: 7
+                          new_this_month:
+                            type: integer
+                            example: 12
+                      registrations_by_month:
+                        type: array
+                        example:
+                          -
+                            month: 2026-05
+                            count: 9
+                          -
+                            month: 2026-06
+                            count: 14
+                          -
+                            month: 2026-07
+                            count: 0
+                          -
+                            month: 2026-08
+                            count: 21
+                          -
+                            month: 2026-09
+                            count: 17
+                          -
+                            month: 2026-10
+                            count: 12
+                        items:
+                          type: object
+                          properties:
+                            month:
+                              type: string
+                              example: 2026-05
+                            count:
+                              type: integer
+                              example: 9
+                      pending_members:
+                        type: array
+                        example: []
+                      recent_members:
+                        type: array
+                        example: []
+                      events:
+                        type: object
+                        properties:
+                          this_month:
+                            type: integer
+                            example: 6
+                          upcoming:
+                            type: integer
+                            example: 4
+                          drafts:
+                            type: integer
+                            example: 2
+                          next:
+                            type: array
+                            example: []
+                      contents:
+                        type: object
+                        properties:
+                          news_published:
+                            type: integer
+                            example: 14
+                          policies_published:
+                            type: integer
+                            example: 5
+                          drafts:
+                            type: integer
+                            example: 3
+                          archived:
+                            type: integer
+                            example: 20
+                          latest:
+                            type: array
+                            example: []
+                      gym:
+                        type: object
+                        properties:
+                          is_open_now:
+                            type: boolean
+                            example: true
+                          today_timing:
+                            type: object
+                            properties:
+                              day_of_week:
+                                type: integer
+                                example: 1
+                              day_name:
+                                type: string
+                                example: Monday
+                              is_closed:
+                                type: boolean
+                                example: false
+                              opens_at:
+                                type: string
+                                example: '06:00'
+                              closes_at:
+                                type: string
+                                example: '22:00'
+                              updated_at:
+                                type: string
+                                example: '2026-10-01T09:00:00+00:00'
+                          timezone:
+                            type: string
+                            example: UTC
+      tags:
+        - 'Admin Portal — Dashboard'
+  /api/admin/members:
+    get:
+      summary: 'List members'
+      operationId: listMembers
+      description: ''
+      parameters:
+        -
+          in: query
+          name: search
+          description: 'Name, email, phone or membership number.'
+          example: jane
+          required: false
+          schema:
+            type: string
+            description: 'Name, email, phone or membership number.'
+            example: jane
+        -
+          in: query
+          name: status
+          description: 'pending, approved or rejected.'
+          example: pending
+          required: false
+          schema:
+            type: string
+            description: 'pending, approved or rejected.'
+            example: pending
+        -
+          in: query
+          name: is_active
+          description: 'Filter by active flag.'
+          example: true
+          required: false
+          schema:
+            type: boolean
+            description: 'Filter by active flag.'
+            example: true
+        -
+          in: query
+          name: column
+          description: 'Sort column: id, name, email, status, created_at, approved_at.'
+          example: created_at
+          required: false
+          schema:
+            type: string
+            description: 'Sort column: id, name, email, status, created_at, approved_at.'
+            example: created_at
+        -
+          in: query
+          name: dir
+          description: 'asc or desc.'
+          example: desc
+          required: false
+          schema:
+            type: string
+            description: 'asc or desc.'
+            example: desc
+        -
+          in: query
+          name: length
+          description: 'Page size (max 100).'
+          example: 10
+          required: false
+          schema:
+            type: integer
+            description: 'Page size (max 100).'
+            example: 10
+        -
+          in: query
+          name: page
+          description: 'Page number.'
+          example: 1
+          required: false
+          schema:
+            type: integer
+            description: 'Page number.'
+            example: 1
+      responses: {  }
+      tags:
+        - 'Admin Portal — Members'
+  '/api/admin/members/{member}':
+    get:
+      summary: 'Show a member'
+      operationId: showAMember
+      description: ''
+      parameters: []
+      responses: {  }
+      tags:
+        - 'Admin Portal — Members'
+    put:
+      summary: "Update a member's profile"
+      operationId: updateAMembersProfile
+      description: 'Profile fields only; use the approval actions to change status.'
+      parameters: []
+      responses: {  }
+      tags:
+        - 'Admin Portal — Members'
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                  description: 'Must be at least 2 characters. Must not be greater than 100 characters.'
+                  example: b
+                email:
+                  type: string
+                  description: 'Must be a valid email address. Must not be greater than 255 characters.'
+                  example: zbailey@example.net
+                phone:
+                  type: string
+                  description: 'Must match the regex /^\+[1-9]\d{6,14}$/. Must not be greater than 20 characters.'
+                  example: iyvdljnikhwaykcm
+                date_of_birth:
+                  type: string
+                  description: 'Must be a valid date. Must be a date before <code>today</code>. Must be a date after <code>1900-01-01</code>.'
+                  example: '2010-04-23'
+                  nullable: true
+                gender:
+                  type: string
+                  description: ''
+                  example: male
+                  enum:
+                    - male
+                    - female
+                    - other
+                  nullable: true
+                address:
+                  type: string
+                  description: 'Must not be greater than 255 characters.'
+                  example: g
+                  nullable: true
+                emergency_contact_name:
+                  type: string
+                  description: 'Must not be greater than 100 characters.'
+                  example: z
+                  nullable: true
+                emergency_contact_phone:
+                  type: string
+                  description: 'Must match the regex /^\+[1-9]\d{6,14}$/. Must not be greater than 20 characters.'
+                  example: miyvdljnikhwaykc
+                  nullable: true
+    delete:
+      summary: 'Delete a member'
+      operationId: deleteAMember
+      description: 'Soft-deletes the member and revokes their tokens.'
+      parameters: []
+      responses: {  }
+      tags:
+        - 'Admin Portal — Members'
+    parameters:
+      -
+        in: path
+        name: member
+        description: 'The member.'
+        example: '564'
+        required: true
+        schema:
+          type: string
+  '/api/admin/members/{member}/approve':
+    post:
+      summary: 'Approve a member'
+      operationId: approveAMember
+      description: 'Allowed for pending or rejected members. Activates the member and assigns a membership number.'
+      parameters: []
+      responses: {  }
+      tags:
+        - 'Admin Portal — Members'
+    parameters:
+      -
+        in: path
+        name: member
+        description: 'The member.'
+        example: '564'
+        required: true
+        schema:
+          type: string
+  '/api/admin/members/{member}/reject':
+    post:
+      summary: 'Reject a member'
+      operationId: rejectAMember
+      description: 'Allowed for pending members only. The reason is shown to the member when they try to log in.'
+      parameters: []
+      responses: {  }
+      tags:
+        - 'Admin Portal — Members'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                reason:
+                  type: string
+                  description: 'Must be at least 5 characters. Must not be greater than 500 characters.'
+                  example: b
+              required:
+                - reason
+    parameters:
+      -
+        in: path
+        name: member
+        description: 'The member.'
+        example: '564'
+        required: true
+        schema:
+          type: string
+  '/api/admin/members/{member}/activate':
+    post:
+      summary: 'Activate a member'
+      operationId: activateAMember
+      description: 'Allowed for approved, inactive members.'
+      parameters: []
+      responses: {  }
+      tags:
+        - 'Admin Portal — Members'
+    parameters:
+      -
+        in: path
+        name: member
+        description: 'The member.'
+        example: '564'
+        required: true
+        schema:
+          type: string
+  '/api/admin/members/{member}/deactivate':
+    post:
+      summary: 'Deactivate a member'
+      operationId: deactivateAMember
+      description: 'Allowed for approved, active members. Revokes their tokens, signing them out of the app.'
+      parameters: []
+      responses: {  }
+      tags:
+        - 'Admin Portal — Members'
+    parameters:
+      -
+        in: path
+        name: member
+        description: 'The member.'
+        example: '564'
+        required: true
+        schema:
+          type: string
+  /api/admin/gym-timings:
+    get:
+      summary: 'Get the week'
+      operationId: getTheWeek
+      description: 'All seven days, Monday first, with the gym timezone and whether it is open now.'
+      parameters: []
+      responses: {  }
+      tags:
+        - 'Admin Portal — Gym Timings'
+    put:
+      summary: 'Update the week'
+      operationId: updateTheWeek
+      description: 'Send all seven days. A closed day stores no times; an open day needs closes_at after opens_at.'
+      parameters: []
+      responses: {  }
+      tags:
+        - 'Admin Portal — Gym Timings'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                timings:
+                  type: array
+                  description: 'Must contain 7 items.'
+                  example:
+                    - []
+                  items:
+                    type: object
+                    properties:
+                      day_of_week:
+                        type: integer
+                        description: 'Must be between 0 and 6.'
+                        example: 1
+                      is_closed:
+                        type: boolean
+                        description: ''
+                        example: false
+                      opens_at:
+                        type: string
+                        description: 'This field is required when <code>timings.*.is_closed</code> is <code>false</code>. Must be a valid date in the format <code>H:i</code>.'
+                        example: '18:21'
+                        nullable: true
+                      closes_at:
+                        type: string
+                        description: 'This field is required when <code>timings.*.is_closed</code> is <code>false</code>. Must be a valid date in the format <code>H:i</code>.'
+                        example: '18:21'
+                        nullable: true
+                    required:
+                      - day_of_week
+                      - is_closed
+              required:
+                - timings
+  /api/admin/event-types/options:
+    get:
+      summary: 'Event type options'
+      operationId: eventTypeOptions
+      description: 'Active types for dropdowns: [{ value, title, color }], ordered by name.'
+      parameters: []
+      responses: {  }
+      tags:
+        - 'Admin Portal — Event Types'
+  /api/admin/event-types:
+    get:
+      summary: 'List event types'
+      operationId: listEventTypes
+      description: ''
+      parameters:
+        -
+          in: query
+          name: search
+          description: 'Filter by name.'
+          example: class
+          required: false
+          schema:
+            type: string
+            description: 'Filter by name.'
+            example: class
+        -
+          in: query
+          name: column
+          description: 'Sort column: id, name, created_at.'
+          example: name
+          required: false
+          schema:
+            type: string
+            description: 'Sort column: id, name, created_at.'
+            example: name
+        -
+          in: query
+          name: dir
+          description: 'asc or desc.'
+          example: asc
+          required: false
+          schema:
+            type: string
+            description: 'asc or desc.'
+            example: asc
+        -
+          in: query
+          name: length
+          description: 'Page size (max 100).'
+          example: 10
+          required: false
+          schema:
+            type: integer
+            description: 'Page size (max 100).'
+            example: 10
+        -
+          in: query
+          name: page
+          description: 'Page number.'
+          example: 1
+          required: false
+          schema:
+            type: integer
+            description: 'Page number.'
+            example: 1
+      responses: {  }
+      tags:
+        - 'Admin Portal — Event Types'
+    post:
+      summary: 'Create an event type'
+      operationId: createAnEventType
+      description: ''
+      parameters: []
+      responses: {  }
+      tags:
+        - 'Admin Portal — Event Types'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                  description: 'Must not be greater than 100 characters.'
+                  example: b
+                color:
+                  type: string
+                  description: 'Must match the regex /^#[0-9A-Fa-f]{6}$/.'
+                  example: '#fEEeDb'
+                description:
+                  type: string
+                  description: 'Must not be greater than 1000 characters.'
+                  example: 'Accusantium harum mollitia modi deserunt aut ab.'
+                  nullable: true
+                is_active:
+                  type: boolean
+                  description: ''
+                  example: true
+              required:
+                - name
+                - color
+  '/api/admin/event-types/{eventType_id}':
+    get:
+      summary: 'Show an event type'
+      operationId: showAnEventType
+      description: ''
+      parameters: []
+      responses: {  }
+      tags:
+        - 'Admin Portal — Event Types'
+    put:
+      summary: 'Update an event type'
+      operationId: updateAnEventType
+      description: ''
+      parameters: []
+      responses: {  }
+      tags:
+        - 'Admin Portal — Event Types'
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                  description: 'Must not be greater than 100 characters.'
+                  example: b
+                color:
+                  type: string
+                  description: 'Must match the regex /^#[0-9A-Fa-f]{6}$/.'
+                  example: '#fEEeDb'
+                description:
+                  type: string
+                  description: 'Must not be greater than 1000 characters.'
+                  example: 'Accusantium harum mollitia modi deserunt aut ab.'
+                  nullable: true
+                is_active:
+                  type: boolean
+                  description: ''
+                  example: true
+    delete:
+      summary: 'Delete an event type'
+      operationId: deleteAnEventType
+      description: ''
+      parameters: []
+      responses: {  }
+      tags:
+        - 'Admin Portal — Event Types'
+    parameters:
+      -
+        in: path
+        name: eventType_id
+        description: 'The ID of the eventType.'
+        example: 1
+        required: true
+        schema:
+          type: integer
+  /api/admin/events:
+    get:
+      summary: 'List events'
+      operationId: listEvents
+      description: ''
+      parameters:
+        -
+          in: query
+          name: search
+          description: 'Title or location.'
+          example: yoga
+          required: false
+          schema:
+            type: string
+            description: 'Title or location.'
+            example: yoga
+        -
+          in: query
+          name: event_type_id
+          description: 'Filter by type.'
+          example: 1
+          required: false
+          schema:
+            type: integer
+            description: 'Filter by type.'
+            example: 1
+        -
+          in: query
+          name: is_published
+          description: 'Published (true) or draft (false).'
+          example: true
+          required: false
+          schema:
+            type: boolean
+            description: 'Published (true) or draft (false).'
+            example: true
+        -
+          in: query
+          name: from
+          description: 'Start date (Y-m-d, gym time), inclusive.'
+          example: '2026-10-01'
+          required: false
+          schema:
+            type: string
+            description: 'Start date (Y-m-d, gym time), inclusive.'
+            example: '2026-10-01'
+        -
+          in: query
+          name: to
+          description: 'End date (Y-m-d, gym time), inclusive.'
+          example: '2026-10-31'
+          required: false
+          schema:
+            type: string
+            description: 'End date (Y-m-d, gym time), inclusive.'
+            example: '2026-10-31'
+        -
+          in: query
+          name: column
+          description: 'Sort column: id, title, starts_at, created_at.'
+          example: starts_at
+          required: false
+          schema:
+            type: string
+            description: 'Sort column: id, title, starts_at, created_at.'
+            example: starts_at
+        -
+          in: query
+          name: dir
+          description: 'asc or desc.'
+          example: asc
+          required: false
+          schema:
+            type: string
+            description: 'asc or desc.'
+            example: asc
+        -
+          in: query
+          name: length
+          description: 'Page size (max 100).'
+          example: 10
+          required: false
+          schema:
+            type: integer
+            description: 'Page size (max 100).'
+            example: 10
+        -
+          in: query
+          name: page
+          description: 'Page number.'
+          example: 1
+          required: false
+          schema:
+            type: integer
+            description: 'Page number.'
+            example: 1
+      responses: {  }
+      tags:
+        - 'Admin Portal — Events'
+    post:
+      summary: 'Create an event'
+      operationId: createAnEvent
+      description: ''
+      parameters: []
+      responses: {  }
+      tags:
+        - 'Admin Portal — Events'
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                event_type_id:
+                  type: integer
+                  description: 'Must match an existing stored value.'
+                  example: 16
+                title:
+                  type: string
+                  description: 'Must not be greater than 150 characters.'
+                  example: 'n'
+                description:
+                  type: string
+                  description: 'Must not be greater than 5000 characters.'
+                  example: 'Animi quos velit et fugiat.'
+                  nullable: true
+                location:
+                  type: string
+                  description: 'Must not be greater than 150 characters.'
+                  example: d
+                  nullable: true
+                starts_at:
+                  type: string
+                  description: 'Must be a valid date.'
+                  example: '2026-09-26T18:21:32'
+                ends_at:
+                  type: string
+                  description: 'Must be a valid date. Must be a date after or equal to <code>starts_at</code>.'
+                  example: '2052-10-19'
+                  nullable: true
+                capacity:
+                  type: integer
+                  description: 'Must be at least 1.'
+                  example: 22
+                  nullable: true
+                is_published:
+                  type: boolean
+                  description: ''
+                  example: false
+                image:
+                  type: string
+                  format: binary
+                  description: 'Must be an image. Must not be greater than 5120 kilobytes.'
+                  nullable: true
+              required:
+                - event_type_id
+                - title
+                - starts_at
+  '/api/admin/events/{event_id}':
+    get:
+      summary: 'Show an event'
+      operationId: showAnEvent
+      description: ''
+      parameters: []
+      responses: {  }
+      tags:
+        - 'Admin Portal — Events'
+    put:
+      summary: 'Update an event'
+      operationId: updateAnEvent
+      description: 'Partial update. Send remove_image=1 to delete the current image.'
+      parameters: []
+      responses: {  }
+      tags:
+        - 'Admin Portal — Events'
+      requestBody:
+        required: false
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                event_type_id:
+                  type: integer
+                  description: 'Must match an existing stored value.'
+                  example: 16
+                title:
+                  type: string
+                  description: 'Must not be greater than 150 characters.'
+                  example: 'n'
+                description:
+                  type: string
+                  description: 'Must not be greater than 5000 characters.'
+                  example: 'Animi quos velit et fugiat.'
+                  nullable: true
+                location:
+                  type: string
+                  description: 'Must not be greater than 150 characters.'
+                  example: d
+                  nullable: true
+                starts_at:
+                  type: string
+                  description: 'Must be a valid date.'
+                  example: '2026-09-26T18:21:32'
+                ends_at:
+                  type: string
+                  description: 'Must be a valid date.'
+                  example: '2026-09-26T18:21:32'
+                  nullable: true
+                capacity:
+                  type: integer
+                  description: 'Must be at least 1.'
+                  example: 40
+                  nullable: true
+                is_published:
+                  type: boolean
+                  description: ''
+                  example: false
+                image:
+                  type: string
+                  format: binary
+                  description: 'Must be an image. Must not be greater than 5120 kilobytes.'
+                  nullable: true
+                remove_image:
+                  type: boolean
+                  description: ''
+                  example: true
+    delete:
+      summary: 'Delete an event'
+      operationId: deleteAnEvent
+      description: 'Also deletes its image.'
+      parameters: []
+      responses: {  }
+      tags:
+        - 'Admin Portal — Events'
+    parameters:
+      -
+        in: path
+        name: event_id
+        description: 'The ID of the event.'
+        example: 16
+        required: true
+        schema:
+          type: integer
+  /api/admin/contents:
+    get:
+      summary: 'List news and policies'
+      operationId: listNewsAndPolicies
+      description: ''
+      parameters:
+        -
+          in: query
+          name: type
+          description: 'news or policy.'
+          example: news
+          required: false
+          schema:
+            type: string
+            description: 'news or policy.'
+            example: news
+        -
+          in: query
+          name: status
+          description: 'draft, published or archived.'
+          example: published
+          required: false
+          schema:
+            type: string
+            description: 'draft, published or archived.'
+            example: published
+        -
+          in: query
+          name: search
+          description: 'Title or excerpt.'
+          example: holiday
+          required: false
+          schema:
+            type: string
+            description: 'Title or excerpt.'
+            example: holiday
+        -
+          in: query
+          name: column
+          description: 'Sort column: id, title, published_at, created_at.'
+          example: published_at
+          required: false
+          schema:
+            type: string
+            description: 'Sort column: id, title, published_at, created_at.'
+            example: published_at
+        -
+          in: query
+          name: dir
+          description: 'asc or desc.'
+          example: desc
+          required: false
+          schema:
+            type: string
+            description: 'asc or desc.'
+            example: desc
+        -
+          in: query
+          name: length
+          description: 'Page size (max 100).'
+          example: 10
+          required: false
+          schema:
+            type: integer
+            description: 'Page size (max 100).'
+            example: 10
+        -
+          in: query
+          name: page
+          description: 'Page number.'
+          example: 1
+          required: false
+          schema:
+            type: integer
+            description: 'Page number.'
+            example: 1
+      responses: {  }
+      tags:
+        - 'Admin Portal — News & Policies'
+    post:
+      summary: 'Create a news item or policy'
+      operationId: createANewsItemOrPolicy
+      description: 'Saved as draft unless status=published.'
+      parameters: []
+      responses: {  }
+      tags:
+        - 'Admin Portal — News & Policies'
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                type:
+                  type: string
+                  description: ''
+                  example: news
+                  enum:
+                    - news
+                    - policy
+                title:
+                  type: string
+                  description: 'Must not be greater than 200 characters.'
+                  example: b
+                excerpt:
+                  type: string
+                  description: 'Must not be greater than 500 characters.'
+                  example: 'n'
+                  nullable: true
+                body:
+                  type: string
+                  description: 'Must not be greater than 65000 characters.'
+                  example: g
+                status:
+                  type: string
+                  description: ''
+                  example: draft
+                  enum:
+                    - draft
+                    - published
+                image:
+                  type: string
+                  format: binary
+                  description: 'Must be an image. Must not be greater than 5120 kilobytes.'
+                  nullable: true
+              required:
+                - type
+                - title
+                - body
+  '/api/admin/contents/{content_id}':
+    get:
+      summary: 'Show a news item or policy'
+      operationId: showANewsItemOrPolicy
+      description: ''
+      parameters: []
+      responses: {  }
+      tags:
+        - 'Admin Portal — News & Policies'
+    put:
+      summary: 'Update a news item or policy'
+      operationId: updateANewsItemOrPolicy
+      description: "Text and image only; type and status can't be changed here. Send remove_image=1 to delete the image."
+      parameters: []
+      responses: {  }
+      tags:
+        - 'Admin Portal — News & Policies'
+      requestBody:
+        required: false
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                title:
+                  type: string
+                  description: 'Must not be greater than 200 characters.'
+                  example: b
+                excerpt:
+                  type: string
+                  description: 'Must not be greater than 500 characters.'
+                  example: 'n'
+                  nullable: true
+                body:
+                  type: string
+                  description: 'Must not be greater than 65000 characters.'
+                  example: g
+                image:
+                  type: string
+                  format: binary
+                  description: 'Must be an image. Must not be greater than 5120 kilobytes.'
+                  nullable: true
+                remove_image:
+                  type: boolean
+                  description: ''
+                  example: false
+    delete:
+      summary: 'Delete a news item or policy'
+      operationId: deleteANewsItemOrPolicy
+      description: 'Also deletes its image.'
+      parameters: []
+      responses: {  }
+      tags:
+        - 'Admin Portal — News & Policies'
+    parameters:
+      -
+        in: path
+        name: content_id
+        description: 'The ID of the content.'
+        example: 16
+        required: true
+        schema:
+          type: integer
+  '/api/admin/contents/{content_id}/publish':
+    post:
+      summary: Publish
+      operationId: publish
+      description: 'Draft or archived → published.'
+      parameters: []
+      responses: {  }
+      tags:
+        - 'Admin Portal — News & Policies'
+    parameters:
+      -
+        in: path
+        name: content_id
+        description: 'The ID of the content.'
+        example: 16
+        required: true
+        schema:
+          type: integer
+  '/api/admin/contents/{content_id}/archive':
+    post:
+      summary: Archive
+      operationId: archive
+      description: 'Published → archived. Members see archived items under "older".'
+      parameters: []
+      responses: {  }
+      tags:
+        - 'Admin Portal — News & Policies'
+    parameters:
+      -
+        in: path
+        name: content_id
+        description: 'The ID of the content.'
+        example: 16
+        required: true
+        schema:
+          type: integer

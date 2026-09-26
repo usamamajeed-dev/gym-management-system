@@ -8,6 +8,8 @@ use App\Enums\ErrorCode;
 use App\Enums\MemberStatus;
 use App\Exceptions\ApiException;
 use App\Models\User;
+use App\Notifications\MemberApprovedNotification;
+use App\Notifications\MemberRejectedNotification;
 use App\Repositories\UserRepository;
 use App\Services\Base\BaseService;
 use Closure;
@@ -51,9 +53,10 @@ class MemberService extends BaseService
         return $member;
     }
 
+    /** Approves the member and, once committed, emails them. */
     public function approve(User $member, User $admin): User
     {
-        return $this->transition($member, function (User $member) use ($admin): void {
+        $approved = $this->transition($member, function (User $member) use ($admin): void {
             if (! in_array($member->status, [MemberStatus::PENDING, MemberStatus::REJECTED], true)) {
                 throw $this->invalidTransition('Only pending or rejected members can be approved.');
             }
@@ -69,11 +72,16 @@ class MemberService extends BaseService
                 'membership_number' => $member->membership_number ?? $this->membershipNumber($member),
             ]);
         });
+
+        $approved->notify(new MemberApprovedNotification);
+
+        return $approved;
     }
 
+    /** Rejects the member and, once committed, emails them the reason. */
     public function reject(User $member, User $admin, string $reason): User
     {
-        return $this->transition($member, function (User $member) use ($admin, $reason): void {
+        $rejected = $this->transition($member, function (User $member) use ($admin, $reason): void {
             if (! $member->isPending()) {
                 throw $this->invalidTransition('Only pending members can be rejected.');
             }
@@ -86,6 +94,10 @@ class MemberService extends BaseService
                 'rejection_reason' => $reason,
             ]);
         });
+
+        $rejected->notify(new MemberRejectedNotification);
+
+        return $rejected;
     }
 
     public function activate(User $member): User

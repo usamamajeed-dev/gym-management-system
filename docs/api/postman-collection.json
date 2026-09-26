@@ -1,0 +1,1794 @@
+{
+    "variable": [
+        {
+            "id": "baseUrl",
+            "key": "baseUrl",
+            "type": "string",
+            "name": "string",
+            "value": "http:\/\/localhost:8000"
+        }
+    ],
+    "info": {
+        "name": "Gym Management API",
+        "_postman_id": "0598485a-e2f8-4cb1-85f6-0939a6ffe9a7",
+        "description": "Backend API for the Gym Management System: the member app (\/api\/v1) and the admin portal (\/api\/admin).",
+        "schema": "https:\/\/schema.getpostman.com\/json\/collection\/v2.1.0\/collection.json"
+    },
+    "item": [
+        {
+            "name": "Member App \u2014 Auth",
+            "description": "\nMember registration and login. A new member stays pending until an admin\napproves them; only approved, active members can log in.",
+            "item": [
+                {
+                    "name": "Register",
+                    "request": {
+                        "url": {
+                            "host": "{{baseUrl}}",
+                            "path": "api\/v1\/auth\/register",
+                            "query": [],
+                            "raw": "{{baseUrl}}\/api\/v1\/auth\/register"
+                        },
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application\/json"
+                            },
+                            {
+                                "key": "Accept",
+                                "value": "application\/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\"name\":\"b\",\"email\":\"zbailey@example.net\",\"phone\":\"iyvdljnikhwaykcm\",\"password\":\"\\\/kXaz<m5L[)~=NG5a:\",\"date_of_birth\":\"2010-04-23\",\"gender\":\"female\",\"address\":\"g\",\"emergency_contact_name\":\"z\",\"emergency_contact_phone\":\"miyvdljnikhwaykc\"}"
+                        },
+                        "description": "Submit a membership registration. No token is returned: the member can\nlog in once an admin approves the registration.",
+                        "auth": {
+                            "type": "noauth"
+                        }
+                    },
+                    "response": []
+                },
+                {
+                    "name": "Log in",
+                    "request": {
+                        "url": {
+                            "host": "{{baseUrl}}",
+                            "path": "api\/v1\/auth\/login",
+                            "query": [],
+                            "raw": "{{baseUrl}}\/api\/v1\/auth\/login"
+                        },
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application\/json"
+                            },
+                            {
+                                "key": "Accept",
+                                "value": "application\/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\"email\":\"gbailey@example.net\",\"password\":\"+-0pBNvYgxwmi\\\/#iw\"}"
+                        },
+                        "description": "Returns a Bearer token for an approved, active member. Pending, rejected\nand inactive members get 403 with error_code MEMBER_PENDING,\nMEMBER_REJECTED (plus errors.rejection_reason) or MEMBER_INACTIVE.",
+                        "auth": {
+                            "type": "noauth"
+                        }
+                    },
+                    "response": []
+                },
+                {
+                    "name": "Log out",
+                    "request": {
+                        "url": {
+                            "host": "{{baseUrl}}",
+                            "path": "api\/v1\/auth\/logout",
+                            "query": [],
+                            "raw": "{{baseUrl}}\/api\/v1\/auth\/logout"
+                        },
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application\/json"
+                            },
+                            {
+                                "key": "Accept",
+                                "value": "application\/json"
+                            }
+                        ],
+                        "body": null,
+                        "description": "Revokes the token used for this request."
+                    },
+                    "response": []
+                },
+                {
+                    "name": "Current member",
+                    "request": {
+                        "url": {
+                            "host": "{{baseUrl}}",
+                            "path": "api\/v1\/auth\/me",
+                            "query": [],
+                            "raw": "{{baseUrl}}\/api\/v1\/auth\/me"
+                        },
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application\/json"
+                            },
+                            {
+                                "key": "Accept",
+                                "value": "application\/json"
+                            }
+                        ],
+                        "body": null,
+                        "description": ""
+                    },
+                    "response": []
+                }
+            ]
+        },
+        {
+            "name": "Member App \u2014 Dashboard",
+            "description": "",
+            "item": [
+                {
+                    "name": "Home screen",
+                    "request": {
+                        "url": {
+                            "host": "{{baseUrl}}",
+                            "path": "api\/v1\/dashboard",
+                            "query": [],
+                            "raw": "{{baseUrl}}\/api\/v1\/dashboard"
+                        },
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application\/json"
+                            },
+                            {
+                                "key": "Accept",
+                                "value": "application\/json"
+                            }
+                        ],
+                        "body": null,
+                        "description": "The member, gym name and timezone, today's opening hours, whether the gym is open now,\nthe next 3 events, the latest 3 news items, and counts for this month's events and policies."
+                    },
+                    "response": [
+                        {
+                            "header": [],
+                            "code": 200,
+                            "body": "{\"success\":true,\"message\":\"Dashboard retrieved successfully\",\"data\":{\"member\":{\"id\":2,\"name\":\"Jane Doe\",\"membership_number\":\"GYM-2026-00002\",\"status\":\"approved\",\"is_active\":true},\"gym\":{\"name\":\"My Gym\",\"timezone\":\"UTC\"},\"today_timing\":{\"day_of_week\":1,\"day_name\":\"Monday\",\"is_closed\":false,\"opens_at\":\"06:00\",\"closes_at\":\"22:00\",\"updated_at\":\"2026-09-26T18:00:00+00:00\"},\"is_open_now\":true,\"upcoming_events\":[],\"latest_news\":[],\"counts\":{\"events_this_month\":5,\"policies\":4}}}",
+                            "name": ""
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "name": "Member App \u2014 Gym Timings",
+            "description": "",
+            "item": [
+                {
+                    "name": "Weekly opening hours",
+                    "request": {
+                        "url": {
+                            "host": "{{baseUrl}}",
+                            "path": "api\/v1\/gym-timings",
+                            "query": [],
+                            "raw": "{{baseUrl}}\/api\/v1\/gym-timings"
+                        },
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application\/json"
+                            },
+                            {
+                                "key": "Accept",
+                                "value": "application\/json"
+                            }
+                        ],
+                        "body": null,
+                        "description": "Seven days, Monday first, with today's day (0 = Sunday \u2026 6 = Saturday), whether the gym\nis open now, and the timezone the times are in."
+                    },
+                    "response": []
+                }
+            ]
+        },
+        {
+            "name": "Member App \u2014 Events",
+            "description": "\nPublished events only.",
+            "item": [
+                {
+                    "name": "Events in a month",
+                    "request": {
+                        "url": {
+                            "host": "{{baseUrl}}",
+                            "path": "api\/v1\/events",
+                            "query": [
+                                {
+                                    "key": "month",
+                                    "value": "2026-10",
+                                    "description": "The month as YYYY-MM. Defaults to the current month.",
+                                    "disabled": false
+                                }
+                            ],
+                            "raw": "{{baseUrl}}\/api\/v1\/events?month=2026-10"
+                        },
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application\/json"
+                            },
+                            {
+                                "key": "Accept",
+                                "value": "application\/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\"month\":\"2026-09\"}"
+                        },
+                        "description": "Published events that overlap the month (gym time), earliest first. Not paginated."
+                    },
+                    "response": []
+                },
+                {
+                    "name": "Show an event",
+                    "request": {
+                        "url": {
+                            "host": "{{baseUrl}}",
+                            "path": "api\/v1\/events\/:event_id",
+                            "query": [],
+                            "raw": "{{baseUrl}}\/api\/v1\/events\/:event_id",
+                            "variable": [
+                                {
+                                    "id": "event_id",
+                                    "key": "event_id",
+                                    "value": 16,
+                                    "description": "The ID of the event."
+                                }
+                            ]
+                        },
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application\/json"
+                            },
+                            {
+                                "key": "Accept",
+                                "value": "application\/json"
+                            }
+                        ],
+                        "body": null,
+                        "description": "404 if the event doesn't exist or isn't published."
+                    },
+                    "response": []
+                }
+            ]
+        },
+        {
+            "name": "Member App \u2014 News & Policies",
+            "description": "\n\"current\" lists published items; \"archive\" lists older, archived items. Drafts are never shown.",
+            "item": [
+                {
+                    "name": "List news or policies",
+                    "request": {
+                        "url": {
+                            "host": "{{baseUrl}}",
+                            "path": "api\/v1\/contents",
+                            "query": [
+                                {
+                                    "key": "type",
+                                    "value": "news",
+                                    "description": "news or policy.",
+                                    "disabled": false
+                                },
+                                {
+                                    "key": "period",
+                                    "value": "current",
+                                    "description": "current (default) or archive.",
+                                    "disabled": false
+                                },
+                                {
+                                    "key": "page",
+                                    "value": "1",
+                                    "description": "Page number.",
+                                    "disabled": false
+                                }
+                            ],
+                            "raw": "{{baseUrl}}\/api\/v1\/contents?type=news&period=current&page=1"
+                        },
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application\/json"
+                            },
+                            {
+                                "key": "Accept",
+                                "value": "application\/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\"type\":\"news\",\"period\":\"current\",\"page\":16}"
+                        },
+                        "description": "Paginated, 10 per page, newest first. List items have no body."
+                    },
+                    "response": []
+                },
+                {
+                    "name": "Show a news item or policy",
+                    "request": {
+                        "url": {
+                            "host": "{{baseUrl}}",
+                            "path": "api\/v1\/contents\/:content_id",
+                            "query": [],
+                            "raw": "{{baseUrl}}\/api\/v1\/contents\/:content_id",
+                            "variable": [
+                                {
+                                    "id": "content_id",
+                                    "key": "content_id",
+                                    "value": 16,
+                                    "description": "The ID of the content."
+                                }
+                            ]
+                        },
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application\/json"
+                            },
+                            {
+                                "key": "Accept",
+                                "value": "application\/json"
+                            }
+                        ],
+                        "body": null,
+                        "description": "Includes the body. 404 for drafts."
+                    },
+                    "response": []
+                }
+            ]
+        },
+        {
+            "name": "Member App \u2014 Profile",
+            "description": "",
+            "item": [
+                {
+                    "name": "My profile",
+                    "request": {
+                        "url": {
+                            "host": "{{baseUrl}}",
+                            "path": "api\/v1\/profile",
+                            "query": [],
+                            "raw": "{{baseUrl}}\/api\/v1\/profile"
+                        },
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application\/json"
+                            },
+                            {
+                                "key": "Accept",
+                                "value": "application\/json"
+                            }
+                        ],
+                        "body": null,
+                        "description": "The logged-in member's details, including membership number and status."
+                    },
+                    "response": []
+                }
+            ]
+        },
+        {
+            "name": "Admin Portal \u2014 Auth",
+            "description": "\nAdmin login for the portal. Only users with the admin role can log in here.",
+            "item": [
+                {
+                    "name": "Log in",
+                    "request": {
+                        "url": {
+                            "host": "{{baseUrl}}",
+                            "path": "api\/admin\/auth\/login",
+                            "query": [],
+                            "raw": "{{baseUrl}}\/api\/admin\/auth\/login"
+                        },
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application\/json"
+                            },
+                            {
+                                "key": "Accept",
+                                "value": "application\/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\"email\":\"gbailey@example.net\",\"password\":\"+-0pBNvYgxwmi\\\/#iw\"}"
+                        },
+                        "description": "Returns a Bearer token plus the admin's roles and permissions.",
+                        "auth": {
+                            "type": "noauth"
+                        }
+                    },
+                    "response": []
+                },
+                {
+                    "name": "Log out",
+                    "request": {
+                        "url": {
+                            "host": "{{baseUrl}}",
+                            "path": "api\/admin\/auth\/logout",
+                            "query": [],
+                            "raw": "{{baseUrl}}\/api\/admin\/auth\/logout"
+                        },
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application\/json"
+                            },
+                            {
+                                "key": "Accept",
+                                "value": "application\/json"
+                            }
+                        ],
+                        "body": null,
+                        "description": "Revokes the token used for this request."
+                    },
+                    "response": []
+                },
+                {
+                    "name": "Current admin",
+                    "request": {
+                        "url": {
+                            "host": "{{baseUrl}}",
+                            "path": "api\/admin\/auth\/me",
+                            "query": [],
+                            "raw": "{{baseUrl}}\/api\/admin\/auth\/me"
+                        },
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application\/json"
+                            },
+                            {
+                                "key": "Accept",
+                                "value": "application\/json"
+                            }
+                        ],
+                        "body": null,
+                        "description": "Includes the admin's roles and permissions."
+                    },
+                    "response": []
+                }
+            ]
+        },
+        {
+            "name": "Admin Portal \u2014 Dashboard",
+            "description": "",
+            "item": [
+                {
+                    "name": "Overview",
+                    "request": {
+                        "url": {
+                            "host": "{{baseUrl}}",
+                            "path": "api\/admin\/dashboard",
+                            "query": [],
+                            "raw": "{{baseUrl}}\/api\/admin\/dashboard"
+                        },
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application\/json"
+                            },
+                            {
+                                "key": "Accept",
+                                "value": "application\/json"
+                            }
+                        ],
+                        "body": null,
+                        "description": "Member counts, registrations for the last six months, the oldest pending and newest members,\nevent and content counts with the next events and latest content, and the gym's open status.\nCached for up to 60 seconds; changes made through the API refresh it immediately."
+                    },
+                    "response": [
+                        {
+                            "header": [],
+                            "code": 200,
+                            "body": "{\"success\":true,\"message\":\"Dashboard retrieved successfully\",\"data\":{\"members\":{\"total\":120,\"pending\":7,\"approved\":105,\"rejected\":8,\"active\":98,\"inactive\":7,\"new_this_month\":12},\"registrations_by_month\":[{\"month\":\"2026-05\",\"count\":9},{\"month\":\"2026-06\",\"count\":14},{\"month\":\"2026-07\",\"count\":0},{\"month\":\"2026-08\",\"count\":21},{\"month\":\"2026-09\",\"count\":17},{\"month\":\"2026-10\",\"count\":12}],\"pending_members\":[],\"recent_members\":[],\"events\":{\"this_month\":6,\"upcoming\":4,\"drafts\":2,\"next\":[]},\"contents\":{\"news_published\":14,\"policies_published\":5,\"drafts\":3,\"archived\":20,\"latest\":[]},\"gym\":{\"is_open_now\":true,\"today_timing\":{\"day_of_week\":1,\"day_name\":\"Monday\",\"is_closed\":false,\"opens_at\":\"06:00\",\"closes_at\":\"22:00\",\"updated_at\":\"2026-10-01T09:00:00+00:00\"},\"timezone\":\"UTC\"}}}",
+                            "name": ""
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "name": "Admin Portal \u2014 Members",
+            "description": "\nManage gym members and their registrations. Approve or reject pending\nregistrations, activate or deactivate approved members. Invalid transitions\nreturn 409 with error_code INVALID_MEMBER_TRANSITION.",
+            "item": [
+                {
+                    "name": "List members",
+                    "request": {
+                        "url": {
+                            "host": "{{baseUrl}}",
+                            "path": "api\/admin\/members",
+                            "query": [
+                                {
+                                    "key": "search",
+                                    "value": "jane",
+                                    "description": "Name, email, phone or membership number.",
+                                    "disabled": false
+                                },
+                                {
+                                    "key": "status",
+                                    "value": "pending",
+                                    "description": "pending, approved or rejected.",
+                                    "disabled": false
+                                },
+                                {
+                                    "key": "is_active",
+                                    "value": "1",
+                                    "description": "Filter by active flag.",
+                                    "disabled": false
+                                },
+                                {
+                                    "key": "column",
+                                    "value": "created_at",
+                                    "description": "Sort column: id, name, email, status, created_at, approved_at.",
+                                    "disabled": false
+                                },
+                                {
+                                    "key": "dir",
+                                    "value": "desc",
+                                    "description": "asc or desc.",
+                                    "disabled": false
+                                },
+                                {
+                                    "key": "length",
+                                    "value": "10",
+                                    "description": "Page size (max 100).",
+                                    "disabled": false
+                                },
+                                {
+                                    "key": "page",
+                                    "value": "1",
+                                    "description": "Page number.",
+                                    "disabled": false
+                                }
+                            ],
+                            "raw": "{{baseUrl}}\/api\/admin\/members?search=jane&status=pending&is_active=1&column=created_at&dir=desc&length=10&page=1"
+                        },
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application\/json"
+                            },
+                            {
+                                "key": "Accept",
+                                "value": "application\/json"
+                            }
+                        ],
+                        "body": null,
+                        "description": ""
+                    },
+                    "response": []
+                },
+                {
+                    "name": "Show a member",
+                    "request": {
+                        "url": {
+                            "host": "{{baseUrl}}",
+                            "path": "api\/admin\/members\/:member",
+                            "query": [],
+                            "raw": "{{baseUrl}}\/api\/admin\/members\/:member",
+                            "variable": [
+                                {
+                                    "id": "member",
+                                    "key": "member",
+                                    "value": "564",
+                                    "description": "The member."
+                                }
+                            ]
+                        },
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application\/json"
+                            },
+                            {
+                                "key": "Accept",
+                                "value": "application\/json"
+                            }
+                        ],
+                        "body": null,
+                        "description": ""
+                    },
+                    "response": []
+                },
+                {
+                    "name": "Update a member's profile",
+                    "request": {
+                        "url": {
+                            "host": "{{baseUrl}}",
+                            "path": "api\/admin\/members\/:member",
+                            "query": [],
+                            "raw": "{{baseUrl}}\/api\/admin\/members\/:member",
+                            "variable": [
+                                {
+                                    "id": "member",
+                                    "key": "member",
+                                    "value": "564",
+                                    "description": "The member."
+                                }
+                            ]
+                        },
+                        "method": "PUT",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application\/json"
+                            },
+                            {
+                                "key": "Accept",
+                                "value": "application\/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\"name\":\"b\",\"email\":\"zbailey@example.net\",\"phone\":\"iyvdljnikhwaykcm\",\"date_of_birth\":\"2010-04-23\",\"gender\":\"male\",\"address\":\"g\",\"emergency_contact_name\":\"z\",\"emergency_contact_phone\":\"miyvdljnikhwaykc\"}"
+                        },
+                        "description": "Profile fields only; use the approval actions to change status."
+                    },
+                    "response": []
+                },
+                {
+                    "name": "Delete a member",
+                    "request": {
+                        "url": {
+                            "host": "{{baseUrl}}",
+                            "path": "api\/admin\/members\/:member",
+                            "query": [],
+                            "raw": "{{baseUrl}}\/api\/admin\/members\/:member",
+                            "variable": [
+                                {
+                                    "id": "member",
+                                    "key": "member",
+                                    "value": "564",
+                                    "description": "The member."
+                                }
+                            ]
+                        },
+                        "method": "DELETE",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application\/json"
+                            },
+                            {
+                                "key": "Accept",
+                                "value": "application\/json"
+                            }
+                        ],
+                        "body": null,
+                        "description": "Soft-deletes the member and revokes their tokens."
+                    },
+                    "response": []
+                },
+                {
+                    "name": "Approve a member",
+                    "request": {
+                        "url": {
+                            "host": "{{baseUrl}}",
+                            "path": "api\/admin\/members\/:member\/approve",
+                            "query": [],
+                            "raw": "{{baseUrl}}\/api\/admin\/members\/:member\/approve",
+                            "variable": [
+                                {
+                                    "id": "member",
+                                    "key": "member",
+                                    "value": "564",
+                                    "description": "The member."
+                                }
+                            ]
+                        },
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application\/json"
+                            },
+                            {
+                                "key": "Accept",
+                                "value": "application\/json"
+                            }
+                        ],
+                        "body": null,
+                        "description": "Allowed for pending or rejected members. Activates the member and assigns a membership number."
+                    },
+                    "response": []
+                },
+                {
+                    "name": "Reject a member",
+                    "request": {
+                        "url": {
+                            "host": "{{baseUrl}}",
+                            "path": "api\/admin\/members\/:member\/reject",
+                            "query": [],
+                            "raw": "{{baseUrl}}\/api\/admin\/members\/:member\/reject",
+                            "variable": [
+                                {
+                                    "id": "member",
+                                    "key": "member",
+                                    "value": "564",
+                                    "description": "The member."
+                                }
+                            ]
+                        },
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application\/json"
+                            },
+                            {
+                                "key": "Accept",
+                                "value": "application\/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\"reason\":\"b\"}"
+                        },
+                        "description": "Allowed for pending members only. The reason is shown to the member when they try to log in."
+                    },
+                    "response": []
+                },
+                {
+                    "name": "Activate a member",
+                    "request": {
+                        "url": {
+                            "host": "{{baseUrl}}",
+                            "path": "api\/admin\/members\/:member\/activate",
+                            "query": [],
+                            "raw": "{{baseUrl}}\/api\/admin\/members\/:member\/activate",
+                            "variable": [
+                                {
+                                    "id": "member",
+                                    "key": "member",
+                                    "value": "564",
+                                    "description": "The member."
+                                }
+                            ]
+                        },
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application\/json"
+                            },
+                            {
+                                "key": "Accept",
+                                "value": "application\/json"
+                            }
+                        ],
+                        "body": null,
+                        "description": "Allowed for approved, inactive members."
+                    },
+                    "response": []
+                },
+                {
+                    "name": "Deactivate a member",
+                    "request": {
+                        "url": {
+                            "host": "{{baseUrl}}",
+                            "path": "api\/admin\/members\/:member\/deactivate",
+                            "query": [],
+                            "raw": "{{baseUrl}}\/api\/admin\/members\/:member\/deactivate",
+                            "variable": [
+                                {
+                                    "id": "member",
+                                    "key": "member",
+                                    "value": "564",
+                                    "description": "The member."
+                                }
+                            ]
+                        },
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application\/json"
+                            },
+                            {
+                                "key": "Accept",
+                                "value": "application\/json"
+                            }
+                        ],
+                        "body": null,
+                        "description": "Allowed for approved, active members. Revokes their tokens, signing them out of the app."
+                    },
+                    "response": []
+                }
+            ]
+        },
+        {
+            "name": "Admin Portal \u2014 Gym Timings",
+            "description": "\nWeekly opening hours. Times are \"HH:mm\" in the gym's timezone.",
+            "item": [
+                {
+                    "name": "Get the week",
+                    "request": {
+                        "url": {
+                            "host": "{{baseUrl}}",
+                            "path": "api\/admin\/gym-timings",
+                            "query": [],
+                            "raw": "{{baseUrl}}\/api\/admin\/gym-timings"
+                        },
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application\/json"
+                            },
+                            {
+                                "key": "Accept",
+                                "value": "application\/json"
+                            }
+                        ],
+                        "body": null,
+                        "description": "All seven days, Monday first, with the gym timezone and whether it is open now."
+                    },
+                    "response": []
+                },
+                {
+                    "name": "Update the week",
+                    "request": {
+                        "url": {
+                            "host": "{{baseUrl}}",
+                            "path": "api\/admin\/gym-timings",
+                            "query": [],
+                            "raw": "{{baseUrl}}\/api\/admin\/gym-timings"
+                        },
+                        "method": "PUT",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application\/json"
+                            },
+                            {
+                                "key": "Accept",
+                                "value": "application\/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\"timings\":[{\"day_of_week\":1,\"is_closed\":false,\"opens_at\":\"18:21\",\"closes_at\":\"18:21\"}]}"
+                        },
+                        "description": "Send all seven days. A closed day stores no times; an open day needs closes_at after opens_at."
+                    },
+                    "response": []
+                }
+            ]
+        },
+        {
+            "name": "Admin Portal \u2014 Event Types",
+            "description": "\nKinds of gym events (Class, Workshop, Competition\u2026) with a badge colour.\nA type that is used by events can't be deleted (409 EVENT_TYPE_IN_USE); deactivate it instead.",
+            "item": [
+                {
+                    "name": "Event type options",
+                    "request": {
+                        "url": {
+                            "host": "{{baseUrl}}",
+                            "path": "api\/admin\/event-types\/options",
+                            "query": [],
+                            "raw": "{{baseUrl}}\/api\/admin\/event-types\/options"
+                        },
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application\/json"
+                            },
+                            {
+                                "key": "Accept",
+                                "value": "application\/json"
+                            }
+                        ],
+                        "body": null,
+                        "description": "Active types for dropdowns: [{ value, title, color }], ordered by name."
+                    },
+                    "response": []
+                },
+                {
+                    "name": "List event types",
+                    "request": {
+                        "url": {
+                            "host": "{{baseUrl}}",
+                            "path": "api\/admin\/event-types",
+                            "query": [
+                                {
+                                    "key": "search",
+                                    "value": "class",
+                                    "description": "Filter by name.",
+                                    "disabled": false
+                                },
+                                {
+                                    "key": "column",
+                                    "value": "name",
+                                    "description": "Sort column: id, name, created_at.",
+                                    "disabled": false
+                                },
+                                {
+                                    "key": "dir",
+                                    "value": "asc",
+                                    "description": "asc or desc.",
+                                    "disabled": false
+                                },
+                                {
+                                    "key": "length",
+                                    "value": "10",
+                                    "description": "Page size (max 100).",
+                                    "disabled": false
+                                },
+                                {
+                                    "key": "page",
+                                    "value": "1",
+                                    "description": "Page number.",
+                                    "disabled": false
+                                }
+                            ],
+                            "raw": "{{baseUrl}}\/api\/admin\/event-types?search=class&column=name&dir=asc&length=10&page=1"
+                        },
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application\/json"
+                            },
+                            {
+                                "key": "Accept",
+                                "value": "application\/json"
+                            }
+                        ],
+                        "body": null,
+                        "description": ""
+                    },
+                    "response": []
+                },
+                {
+                    "name": "Create an event type",
+                    "request": {
+                        "url": {
+                            "host": "{{baseUrl}}",
+                            "path": "api\/admin\/event-types",
+                            "query": [],
+                            "raw": "{{baseUrl}}\/api\/admin\/event-types"
+                        },
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application\/json"
+                            },
+                            {
+                                "key": "Accept",
+                                "value": "application\/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\"name\":\"b\",\"color\":\"#fEEeDb\",\"description\":\"Accusantium harum mollitia modi deserunt aut ab.\",\"is_active\":true}"
+                        },
+                        "description": ""
+                    },
+                    "response": []
+                },
+                {
+                    "name": "Show an event type",
+                    "request": {
+                        "url": {
+                            "host": "{{baseUrl}}",
+                            "path": "api\/admin\/event-types\/:eventType_id",
+                            "query": [],
+                            "raw": "{{baseUrl}}\/api\/admin\/event-types\/:eventType_id",
+                            "variable": [
+                                {
+                                    "id": "eventType_id",
+                                    "key": "eventType_id",
+                                    "value": 1,
+                                    "description": "The ID of the eventType."
+                                }
+                            ]
+                        },
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application\/json"
+                            },
+                            {
+                                "key": "Accept",
+                                "value": "application\/json"
+                            }
+                        ],
+                        "body": null,
+                        "description": ""
+                    },
+                    "response": []
+                },
+                {
+                    "name": "Update an event type",
+                    "request": {
+                        "url": {
+                            "host": "{{baseUrl}}",
+                            "path": "api\/admin\/event-types\/:eventType_id",
+                            "query": [],
+                            "raw": "{{baseUrl}}\/api\/admin\/event-types\/:eventType_id",
+                            "variable": [
+                                {
+                                    "id": "eventType_id",
+                                    "key": "eventType_id",
+                                    "value": 1,
+                                    "description": "The ID of the eventType."
+                                }
+                            ]
+                        },
+                        "method": "PUT",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application\/json"
+                            },
+                            {
+                                "key": "Accept",
+                                "value": "application\/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\"name\":\"b\",\"color\":\"#fEEeDb\",\"description\":\"Accusantium harum mollitia modi deserunt aut ab.\",\"is_active\":true}"
+                        },
+                        "description": ""
+                    },
+                    "response": []
+                },
+                {
+                    "name": "Delete an event type",
+                    "request": {
+                        "url": {
+                            "host": "{{baseUrl}}",
+                            "path": "api\/admin\/event-types\/:eventType_id",
+                            "query": [],
+                            "raw": "{{baseUrl}}\/api\/admin\/event-types\/:eventType_id",
+                            "variable": [
+                                {
+                                    "id": "eventType_id",
+                                    "key": "eventType_id",
+                                    "value": 1,
+                                    "description": "The ID of the eventType."
+                                }
+                            ]
+                        },
+                        "method": "DELETE",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application\/json"
+                            },
+                            {
+                                "key": "Accept",
+                                "value": "application\/json"
+                            }
+                        ],
+                        "body": null,
+                        "description": ""
+                    },
+                    "response": []
+                }
+            ]
+        },
+        {
+            "name": "Admin Portal \u2014 Events",
+            "description": "\nGym events with an optional image. Send dates as local gym time (\"2026-10-05 18:00\")\nor ISO-8601 with an offset. Create and update with an image as multipart; for updates,\nuse POST with _method=PUT.",
+            "item": [
+                {
+                    "name": "List events",
+                    "request": {
+                        "url": {
+                            "host": "{{baseUrl}}",
+                            "path": "api\/admin\/events",
+                            "query": [
+                                {
+                                    "key": "search",
+                                    "value": "yoga",
+                                    "description": "Title or location.",
+                                    "disabled": false
+                                },
+                                {
+                                    "key": "event_type_id",
+                                    "value": "1",
+                                    "description": "Filter by type.",
+                                    "disabled": false
+                                },
+                                {
+                                    "key": "is_published",
+                                    "value": "1",
+                                    "description": "Published (true) or draft (false).",
+                                    "disabled": false
+                                },
+                                {
+                                    "key": "from",
+                                    "value": "2026-10-01",
+                                    "description": "Start date (Y-m-d, gym time), inclusive.",
+                                    "disabled": false
+                                },
+                                {
+                                    "key": "to",
+                                    "value": "2026-10-31",
+                                    "description": "End date (Y-m-d, gym time), inclusive.",
+                                    "disabled": false
+                                },
+                                {
+                                    "key": "column",
+                                    "value": "starts_at",
+                                    "description": "Sort column: id, title, starts_at, created_at.",
+                                    "disabled": false
+                                },
+                                {
+                                    "key": "dir",
+                                    "value": "asc",
+                                    "description": "asc or desc.",
+                                    "disabled": false
+                                },
+                                {
+                                    "key": "length",
+                                    "value": "10",
+                                    "description": "Page size (max 100).",
+                                    "disabled": false
+                                },
+                                {
+                                    "key": "page",
+                                    "value": "1",
+                                    "description": "Page number.",
+                                    "disabled": false
+                                }
+                            ],
+                            "raw": "{{baseUrl}}\/api\/admin\/events?search=yoga&event_type_id=1&is_published=1&from=2026-10-01&to=2026-10-31&column=starts_at&dir=asc&length=10&page=1"
+                        },
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application\/json"
+                            },
+                            {
+                                "key": "Accept",
+                                "value": "application\/json"
+                            }
+                        ],
+                        "body": null,
+                        "description": ""
+                    },
+                    "response": []
+                },
+                {
+                    "name": "Create an event",
+                    "request": {
+                        "url": {
+                            "host": "{{baseUrl}}",
+                            "path": "api\/admin\/events",
+                            "query": [],
+                            "raw": "{{baseUrl}}\/api\/admin\/events"
+                        },
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "multipart\/form-data"
+                            },
+                            {
+                                "key": "Accept",
+                                "value": "application\/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "formdata",
+                            "formdata": [
+                                {
+                                    "key": "event_type_id",
+                                    "value": "16",
+                                    "type": "text",
+                                    "description": "Must match an existing stored value."
+                                },
+                                {
+                                    "key": "title",
+                                    "value": "n",
+                                    "type": "text",
+                                    "description": "Must not be greater than 150 characters."
+                                },
+                                {
+                                    "key": "description",
+                                    "value": "Animi quos velit et fugiat.",
+                                    "type": "text",
+                                    "description": "Must not be greater than 5000 characters."
+                                },
+                                {
+                                    "key": "location",
+                                    "value": "d",
+                                    "type": "text",
+                                    "description": "Must not be greater than 150 characters."
+                                },
+                                {
+                                    "key": "starts_at",
+                                    "value": "2026-09-26T18:21:32",
+                                    "type": "text",
+                                    "description": "Must be a valid date."
+                                },
+                                {
+                                    "key": "ends_at",
+                                    "value": "2052-10-19",
+                                    "type": "text",
+                                    "description": "Must be a valid date. Must be a date after or equal to <code>starts_at<\/code>."
+                                },
+                                {
+                                    "key": "capacity",
+                                    "value": "22",
+                                    "type": "text",
+                                    "description": "Must be at least 1."
+                                },
+                                {
+                                    "key": "is_published",
+                                    "value": "",
+                                    "type": "text",
+                                    "description": ""
+                                },
+                                {
+                                    "key": "image",
+                                    "src": [],
+                                    "type": "file"
+                                }
+                            ]
+                        },
+                        "description": ""
+                    },
+                    "response": []
+                },
+                {
+                    "name": "Show an event",
+                    "request": {
+                        "url": {
+                            "host": "{{baseUrl}}",
+                            "path": "api\/admin\/events\/:event_id",
+                            "query": [],
+                            "raw": "{{baseUrl}}\/api\/admin\/events\/:event_id",
+                            "variable": [
+                                {
+                                    "id": "event_id",
+                                    "key": "event_id",
+                                    "value": 16,
+                                    "description": "The ID of the event."
+                                }
+                            ]
+                        },
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application\/json"
+                            },
+                            {
+                                "key": "Accept",
+                                "value": "application\/json"
+                            }
+                        ],
+                        "body": null,
+                        "description": ""
+                    },
+                    "response": []
+                },
+                {
+                    "name": "Update an event",
+                    "request": {
+                        "url": {
+                            "host": "{{baseUrl}}",
+                            "path": "api\/admin\/events\/:event_id",
+                            "query": [],
+                            "raw": "{{baseUrl}}\/api\/admin\/events\/:event_id",
+                            "variable": [
+                                {
+                                    "id": "event_id",
+                                    "key": "event_id",
+                                    "value": 16,
+                                    "description": "The ID of the event."
+                                }
+                            ]
+                        },
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "multipart\/form-data"
+                            },
+                            {
+                                "key": "Accept",
+                                "value": "application\/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "formdata",
+                            "formdata": [
+                                {
+                                    "key": "event_type_id",
+                                    "value": "16",
+                                    "type": "text",
+                                    "description": "Must match an existing stored value."
+                                },
+                                {
+                                    "key": "title",
+                                    "value": "n",
+                                    "type": "text",
+                                    "description": "Must not be greater than 150 characters."
+                                },
+                                {
+                                    "key": "description",
+                                    "value": "Animi quos velit et fugiat.",
+                                    "type": "text",
+                                    "description": "Must not be greater than 5000 characters."
+                                },
+                                {
+                                    "key": "location",
+                                    "value": "d",
+                                    "type": "text",
+                                    "description": "Must not be greater than 150 characters."
+                                },
+                                {
+                                    "key": "starts_at",
+                                    "value": "2026-09-26T18:21:32",
+                                    "type": "text",
+                                    "description": "Must be a valid date."
+                                },
+                                {
+                                    "key": "ends_at",
+                                    "value": "2026-09-26T18:21:32",
+                                    "type": "text",
+                                    "description": "Must be a valid date."
+                                },
+                                {
+                                    "key": "capacity",
+                                    "value": "40",
+                                    "type": "text",
+                                    "description": "Must be at least 1."
+                                },
+                                {
+                                    "key": "is_published",
+                                    "value": "",
+                                    "type": "text",
+                                    "description": ""
+                                },
+                                {
+                                    "key": "remove_image",
+                                    "value": "1",
+                                    "type": "text",
+                                    "description": ""
+                                },
+                                {
+                                    "key": "image",
+                                    "src": [],
+                                    "type": "file"
+                                },
+                                {
+                                    "key": "_method",
+                                    "value": "PUT",
+                                    "type": "text"
+                                }
+                            ]
+                        },
+                        "description": "Partial update. Send remove_image=1 to delete the current image."
+                    },
+                    "response": []
+                },
+                {
+                    "name": "Delete an event",
+                    "request": {
+                        "url": {
+                            "host": "{{baseUrl}}",
+                            "path": "api\/admin\/events\/:event_id",
+                            "query": [],
+                            "raw": "{{baseUrl}}\/api\/admin\/events\/:event_id",
+                            "variable": [
+                                {
+                                    "id": "event_id",
+                                    "key": "event_id",
+                                    "value": 16,
+                                    "description": "The ID of the event."
+                                }
+                            ]
+                        },
+                        "method": "DELETE",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application\/json"
+                            },
+                            {
+                                "key": "Accept",
+                                "value": "application\/json"
+                            }
+                        ],
+                        "body": null,
+                        "description": "Also deletes its image."
+                    },
+                    "response": []
+                }
+            ]
+        },
+        {
+            "name": "Admin Portal \u2014 News & Policies",
+            "description": "\nNews items and policies share these endpoints (\"type\" = news or policy).\nLifecycle: draft \u2192 published \u2192 archived; archived items can be re-published.\nInvalid transitions return 409 with error_code INVALID_CONTENT_TRANSITION.\nSend create and update with an image as multipart; for updates, use POST with _method=PUT.",
+            "item": [
+                {
+                    "name": "List news and policies",
+                    "request": {
+                        "url": {
+                            "host": "{{baseUrl}}",
+                            "path": "api\/admin\/contents",
+                            "query": [
+                                {
+                                    "key": "type",
+                                    "value": "news",
+                                    "description": "news or policy.",
+                                    "disabled": false
+                                },
+                                {
+                                    "key": "status",
+                                    "value": "published",
+                                    "description": "draft, published or archived.",
+                                    "disabled": false
+                                },
+                                {
+                                    "key": "search",
+                                    "value": "holiday",
+                                    "description": "Title or excerpt.",
+                                    "disabled": false
+                                },
+                                {
+                                    "key": "column",
+                                    "value": "published_at",
+                                    "description": "Sort column: id, title, published_at, created_at.",
+                                    "disabled": false
+                                },
+                                {
+                                    "key": "dir",
+                                    "value": "desc",
+                                    "description": "asc or desc.",
+                                    "disabled": false
+                                },
+                                {
+                                    "key": "length",
+                                    "value": "10",
+                                    "description": "Page size (max 100).",
+                                    "disabled": false
+                                },
+                                {
+                                    "key": "page",
+                                    "value": "1",
+                                    "description": "Page number.",
+                                    "disabled": false
+                                }
+                            ],
+                            "raw": "{{baseUrl}}\/api\/admin\/contents?type=news&status=published&search=holiday&column=published_at&dir=desc&length=10&page=1"
+                        },
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application\/json"
+                            },
+                            {
+                                "key": "Accept",
+                                "value": "application\/json"
+                            }
+                        ],
+                        "body": null,
+                        "description": ""
+                    },
+                    "response": []
+                },
+                {
+                    "name": "Create a news item or policy",
+                    "request": {
+                        "url": {
+                            "host": "{{baseUrl}}",
+                            "path": "api\/admin\/contents",
+                            "query": [],
+                            "raw": "{{baseUrl}}\/api\/admin\/contents"
+                        },
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "multipart\/form-data"
+                            },
+                            {
+                                "key": "Accept",
+                                "value": "application\/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "formdata",
+                            "formdata": [
+                                {
+                                    "key": "type",
+                                    "value": "news",
+                                    "type": "text",
+                                    "description": ""
+                                },
+                                {
+                                    "key": "title",
+                                    "value": "b",
+                                    "type": "text",
+                                    "description": "Must not be greater than 200 characters."
+                                },
+                                {
+                                    "key": "excerpt",
+                                    "value": "n",
+                                    "type": "text",
+                                    "description": "Must not be greater than 500 characters."
+                                },
+                                {
+                                    "key": "body",
+                                    "value": "g",
+                                    "type": "text",
+                                    "description": "Must not be greater than 65000 characters."
+                                },
+                                {
+                                    "key": "status",
+                                    "value": "draft",
+                                    "type": "text",
+                                    "description": ""
+                                },
+                                {
+                                    "key": "image",
+                                    "src": [],
+                                    "type": "file"
+                                }
+                            ]
+                        },
+                        "description": "Saved as draft unless status=published."
+                    },
+                    "response": []
+                },
+                {
+                    "name": "Show a news item or policy",
+                    "request": {
+                        "url": {
+                            "host": "{{baseUrl}}",
+                            "path": "api\/admin\/contents\/:content_id",
+                            "query": [],
+                            "raw": "{{baseUrl}}\/api\/admin\/contents\/:content_id",
+                            "variable": [
+                                {
+                                    "id": "content_id",
+                                    "key": "content_id",
+                                    "value": 16,
+                                    "description": "The ID of the content."
+                                }
+                            ]
+                        },
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application\/json"
+                            },
+                            {
+                                "key": "Accept",
+                                "value": "application\/json"
+                            }
+                        ],
+                        "body": null,
+                        "description": ""
+                    },
+                    "response": []
+                },
+                {
+                    "name": "Update a news item or policy",
+                    "request": {
+                        "url": {
+                            "host": "{{baseUrl}}",
+                            "path": "api\/admin\/contents\/:content_id",
+                            "query": [],
+                            "raw": "{{baseUrl}}\/api\/admin\/contents\/:content_id",
+                            "variable": [
+                                {
+                                    "id": "content_id",
+                                    "key": "content_id",
+                                    "value": 16,
+                                    "description": "The ID of the content."
+                                }
+                            ]
+                        },
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "multipart\/form-data"
+                            },
+                            {
+                                "key": "Accept",
+                                "value": "application\/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "formdata",
+                            "formdata": [
+                                {
+                                    "key": "title",
+                                    "value": "b",
+                                    "type": "text",
+                                    "description": "Must not be greater than 200 characters."
+                                },
+                                {
+                                    "key": "excerpt",
+                                    "value": "n",
+                                    "type": "text",
+                                    "description": "Must not be greater than 500 characters."
+                                },
+                                {
+                                    "key": "body",
+                                    "value": "g",
+                                    "type": "text",
+                                    "description": "Must not be greater than 65000 characters."
+                                },
+                                {
+                                    "key": "remove_image",
+                                    "value": "",
+                                    "type": "text",
+                                    "description": ""
+                                },
+                                {
+                                    "key": "image",
+                                    "src": [],
+                                    "type": "file"
+                                },
+                                {
+                                    "key": "_method",
+                                    "value": "PUT",
+                                    "type": "text"
+                                }
+                            ]
+                        },
+                        "description": "Text and image only; type and status can't be changed here. Send remove_image=1 to delete the image."
+                    },
+                    "response": []
+                },
+                {
+                    "name": "Delete a news item or policy",
+                    "request": {
+                        "url": {
+                            "host": "{{baseUrl}}",
+                            "path": "api\/admin\/contents\/:content_id",
+                            "query": [],
+                            "raw": "{{baseUrl}}\/api\/admin\/contents\/:content_id",
+                            "variable": [
+                                {
+                                    "id": "content_id",
+                                    "key": "content_id",
+                                    "value": 16,
+                                    "description": "The ID of the content."
+                                }
+                            ]
+                        },
+                        "method": "DELETE",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application\/json"
+                            },
+                            {
+                                "key": "Accept",
+                                "value": "application\/json"
+                            }
+                        ],
+                        "body": null,
+                        "description": "Also deletes its image."
+                    },
+                    "response": []
+                },
+                {
+                    "name": "Publish",
+                    "request": {
+                        "url": {
+                            "host": "{{baseUrl}}",
+                            "path": "api\/admin\/contents\/:content_id\/publish",
+                            "query": [],
+                            "raw": "{{baseUrl}}\/api\/admin\/contents\/:content_id\/publish",
+                            "variable": [
+                                {
+                                    "id": "content_id",
+                                    "key": "content_id",
+                                    "value": 16,
+                                    "description": "The ID of the content."
+                                }
+                            ]
+                        },
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application\/json"
+                            },
+                            {
+                                "key": "Accept",
+                                "value": "application\/json"
+                            }
+                        ],
+                        "body": null,
+                        "description": "Draft or archived \u2192 published."
+                    },
+                    "response": []
+                },
+                {
+                    "name": "Archive",
+                    "request": {
+                        "url": {
+                            "host": "{{baseUrl}}",
+                            "path": "api\/admin\/contents\/:content_id\/archive",
+                            "query": [],
+                            "raw": "{{baseUrl}}\/api\/admin\/contents\/:content_id\/archive",
+                            "variable": [
+                                {
+                                    "id": "content_id",
+                                    "key": "content_id",
+                                    "value": 16,
+                                    "description": "The ID of the content."
+                                }
+                            ]
+                        },
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application\/json"
+                            },
+                            {
+                                "key": "Accept",
+                                "value": "application\/json"
+                            }
+                        ],
+                        "body": null,
+                        "description": "Published \u2192 archived. Members see archived items under \"older\"."
+                    },
+                    "response": []
+                }
+            ]
+        }
+    ],
+    "auth": {
+        "type": "bearer",
+        "bearer": [
+            {
+                "key": "Authorization",
+                "type": "string"
+            }
+        ]
+    }
+}

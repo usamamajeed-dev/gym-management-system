@@ -13,17 +13,25 @@ use function Knuckles\Scribe\Config\removeStrategies;
 
 return [
     // The HTML <title> for the generated documentation.
-    'title' => config('app.name').' API Documentation',
+    'title' => 'Gym Management API',
 
     // A short description of your API. Will be included in the docs webpage, Postman collection and OpenAPI spec.
-    'description' => '',
+    'description' => 'Backend API for the Gym Management System: the member app (/api/v1) and the admin portal (/api/admin).',
 
     // Text to place in the "Introduction" section, right after the `description`. Markdown and HTML are supported.
     'intro_text' => <<<'INTRO'
-            This documentation aims to provide all the information you need to work with our API.
+            Two clients share this API:
 
-            <aside>As you scroll, you'll see code examples for working with the API in different programming languages in the dark area to the right (or as part of the content on mobile).
-            You can switch the language used with the tabs at the top right (or from the nav menu at the top left on mobile).</aside>
+            - **Member app** — base path `/api/v1`. Members register, log in once an admin approves them, and read gym information.
+            - **Admin portal** — base path `/api/admin`. Admins manage members, timings, events, news and policies.
+
+            **Authentication.** Log in with `POST /api/v1/auth/login` (members) or `POST /api/admin/auth/login` (admins) and send the returned token as `Authorization: Bearer <token>`. Always send `Accept: application/json`.
+
+            **Responses.** Success: `{ "success": true, "message": "...", "data": ... }`. Paginated lists put `{ "list": [...], "pagination": { "total", "count", "per_page", "current_page", "total_pages" } }` in `data`. Errors: `{ "success": false, "message": "...", "errors"?: {...}, "error_code"?: "..." }`.
+
+            **Dates.** ISO-8601 with offset in the gym's timezone (e.g. `2026-10-01T18:00:00+05:00`). Opening times are `"HH:mm"`.
+
+            **Admin lists** accept `search`, `column` + `dir` (allow-listed sort), `length` (default 10, max 100) and `page`.
         INTRO,
 
     // The base URL displayed in the docs.
@@ -35,7 +43,7 @@ return [
         [
             'match' => [
                 // Match only routes whose paths match this pattern (use * as a wildcard to match any characters). Example: 'users/*'.
-                'prefixes' => ['api/*'],
+                'prefixes' => ['api/v1/*'],
 
                 // Match only routes whose domains match this pattern (use * as a wildcard to match any characters). Example: 'api.*'.
                 'domains' => ['*'],
@@ -50,6 +58,15 @@ return [
             'exclude' => [
                 // 'GET /health', 'admin.*'
             ],
+        ],
+        [
+            // Admin portal routes.
+            'match' => [
+                'prefixes' => ['api/admin/*'],
+                'domains' => ['*'],
+            ],
+            'include' => [],
+            'exclude' => [],
         ],
     ],
 
@@ -107,7 +124,7 @@ return [
     // How is your API authenticated? This information will be used in the displayed docs, generated examples and response calls.
     'auth' => [
         // Set this to true if ANY endpoints in your API use authentication.
-        'enabled' => false,
+        'enabled' => true,
 
         // Set this to true if your API should be authenticated by default. If so, you must also set `enabled` (above) to true.
         // You can then use @unauthenticated or @authenticated on individual endpoints to change their status from the default.
@@ -117,7 +134,7 @@ return [
         'in' => AuthIn::BEARER->value,
 
         // The name of the auth parameter (e.g. token, key, apiKey) or header (e.g. Authorization, Api-Key).
-        'name' => 'key',
+        'name' => 'Authorization',
 
         // The value of the parameter to be used by Scribe to authenticate response calls.
         // This will NOT be included in the generated documentation. If empty, Scribe will use a random value.
@@ -125,10 +142,10 @@ return [
 
         // Placeholder your users will see for the auth parameter in the example requests.
         // Set this to null if you want Scribe to use a random value as placeholder instead.
-        'placeholder' => '{YOUR_AUTH_KEY}',
+        'placeholder' => '{TOKEN}',
 
         // Any extra authentication-related info for your users. Markdown and HTML are supported.
-        'extra_info' => 'You can retrieve your token by visiting your dashboard and clicking <b>Generate API token</b>.',
+        'extra_info' => 'Get a token from <code>POST /api/v1/auth/login</code> (members) or <code>POST /api/admin/auth/login</code> (admins).',
     ],
 
     // Example requests for each endpoint will be shown in each of these languages.
@@ -181,7 +198,21 @@ return [
         // You can override this by listing the groups, subgroups and endpoints here in the order you want them.
         // See https://scribe.knuckles.wtf/blog/laravel-v4#easier-sorting and https://scribe.knuckles.wtf/laravel/reference/config#order for details
         // Note: does not work for `external` docs types
-        'order' => [],
+        'order' => [
+            'Member App — Auth',
+            'Member App — Dashboard',
+            'Member App — Gym Timings',
+            'Member App — Events',
+            'Member App — News & Policies',
+            'Member App — Profile',
+            'Admin Portal — Auth',
+            'Admin Portal — Dashboard',
+            'Admin Portal — Members',
+            'Admin Portal — Gym Timings',
+            'Admin Portal — Event Types',
+            'Admin Portal — Events',
+            'Admin Portal — News & Policies',
+        ],
     ],
 
     // Custom logo path. This will be used as the value of the src attribute for the <img> tag,
@@ -208,7 +239,7 @@ return [
         // With API resources and transformers, Scribe tries to generate example models to use in your API responses.
         // By default, Scribe will try the model's factory, and if that fails, try fetching the first from the database.
         // You can reorder or remove strategies here.
-        'models_source' => ['factoryCreate', 'factoryMake', 'databaseFirst'],
+        'models_source' => ['factoryMake'],
     ],
 
     // The strategies Scribe will use to extract information about your routes at each stage.
@@ -234,15 +265,11 @@ return [
         'bodyParameters' => [
             ...Defaults::BODY_PARAMETERS_STRATEGIES,
         ],
-        'responses' => configureStrategy(
+        // Response calls are disabled: they would send real requests to the database.
+        // Example responses come from @response tags.
+        'responses' => removeStrategies(
             Defaults::RESPONSES_STRATEGIES,
-            Strategies\Responses\ResponseCalls::withSettings(
-                only: ['GET *'],
-                // Recommended: disable debug mode in response calls to avoid error stack traces in responses
-                config: [
-                    'app.debug' => false,
-                ]
-            )
+            [Strategies\Responses\ResponseCalls::class],
         ),
         'responseFields' => [
             ...Defaults::RESPONSE_FIELDS_STRATEGIES,

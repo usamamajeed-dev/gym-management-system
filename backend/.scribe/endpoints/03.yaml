@@ -1,0 +1,115 @@
+name: 'Member App — Events'
+description: |-
+
+  Published events only.
+endpoints:
+  -
+    custom: []
+    httpMethods:
+      - GET
+    uri: api/v1/events
+    metadata:
+      custom: []
+      groupName: 'Member App — Events'
+      groupDescription: |-
+
+        Published events only.
+      subgroup: ''
+      subgroupDescription: ''
+      title: 'Events in a month'
+      description: 'Published events that overlap the month (gym time), earliest first. Not paginated.'
+      authenticated: true
+      deprecated: false
+    headers:
+      Authorization: 'Bearer {TOKEN}'
+      Content-Type: application/json
+      Accept: application/json
+    urlParameters: []
+    cleanUrlParameters: []
+    queryParameters:
+      month:
+        custom: []
+        name: month
+        description: 'The month as YYYY-MM. Defaults to the current month.'
+        required: false
+        example: 2026-10
+        type: string
+        enumValues: []
+        exampleWasSpecified: true
+        nullable: false
+        deprecated: false
+    cleanQueryParameters:
+      month: 2026-10
+    bodyParameters:
+      month:
+        custom: []
+        name: month
+        description: 'Must be a valid date in the format <code>Y-m</code>.'
+        required: false
+        example: 2026-09
+        type: string
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: true
+        deprecated: false
+    cleanBodyParameters:
+      month: 2026-09
+    fileParameters: []
+    responses: []
+    responseFields: []
+    auth:
+      - headers
+      - Authorization
+      - 'Bearer 6g43cv8PD1aE5beadkZfhV6'
+    controller: null
+    method: null
+    route: null
+  -
+    custom: []
+    httpMethods:
+      - GET
+    uri: 'api/v1/events/{event_id}'
+    metadata:
+      custom: []
+      groupName: 'Member App — Events'
+      groupDescription: |-
+
+        Published events only.
+      subgroup: ''
+      subgroupDescription: ''
+      title: 'Show an event'
+      description: "404 if the event doesn't exist or isn't published."
+      authenticated: true
+      deprecated: false
+    headers:
+      Authorization: 'Bearer {TOKEN}'
+      Content-Type: application/json
+      Accept: application/json
+    urlParameters:
+      event_id:
+        custom: []
+        name: event_id
+        description: 'The ID of the event.'
+        required: true
+        example: 16
+        type: integer
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: false
+        deprecated: false
+    cleanUrlParameters:
+      event_id: 16
+    queryParameters: []
+    cleanQueryParameters: []
+    bodyParameters: []
+    cleanBodyParameters: []
+    fileParameters: []
+    responses: []
+    responseFields: []
+    auth:
+      - headers
+      - Authorization
+      - 'Bearer 6g43cv8PD1aE5beadkZfhV6'
+    controller: null
+    method: null
+    route: null
