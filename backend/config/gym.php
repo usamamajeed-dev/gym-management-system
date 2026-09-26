@@ -21,4 +21,16 @@ return [
 
     'list_max_length' => 100,
 
+    /*
+    |--------------------------------------------------------------------------
+    | Seeded admin account
+    |--------------------------------------------------------------------------
+    */
+
+    'admin' => [
+        'name' => env('ADMIN_NAME', 'Gym Admin'),
+        'email' => env('ADMIN_EMAIL', 'admin@gym.test'),
+        'password' => env('ADMIN_PASSWORD', 'Admin@12345'),
+    ],
+
 ];

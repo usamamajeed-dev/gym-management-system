@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Providers;
 
 use Illuminate\Support\ServiceProvider;
+use Laravel\Passport\Passport;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -13,7 +14,8 @@ class AppServiceProvider extends ServiceProvider
      */
     public function register(): void
     {
-        //
+        // Tokens are issued with createToken() only; the OAuth browser/grant routes are not used.
+        Passport::ignoreRoutes();
     }
 
     /**
@@ -21,6 +23,8 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        //
+        Passport::tokensExpireIn(now()->addDays(30));
+        Passport::refreshTokensExpireIn(now()->addDays(60));
+        Passport::personalAccessTokensExpireIn(now()->addDays(30));
     }
 }
