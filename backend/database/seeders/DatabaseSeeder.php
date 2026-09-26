@@ -14,6 +14,7 @@ class DatabaseSeeder extends Seeder
             RolePermissionSeeder::class,
             AdminUserSeeder::class,
             GymTimingSeeder::class,
+            EventTypeSeeder::class,
         ]);
     }
 }

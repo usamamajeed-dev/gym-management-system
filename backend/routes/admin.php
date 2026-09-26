@@ -3,6 +3,8 @@
 declare(strict_types=1);
 
 use App\Http\Controllers\Api\Admin\AuthController as AdminAuthController;
+use App\Http\Controllers\Api\Admin\EventController;
+use App\Http\Controllers\Api\Admin\EventTypeController;
 use App\Http\Controllers\Api\Admin\GymTimingController;
 use App\Http\Controllers\Api\Admin\MemberController;
 use Illuminate\Support\Facades\Route;
@@ -50,5 +52,24 @@ Route::middleware(['auth:api', 'role:admin,api'])->group(function (): void {
     Route::prefix('gym-timings')->middleware('permission:timings.manage,api')->group(function (): void {
         Route::get('', [GymTimingController::class, 'index']);
         Route::put('', [GymTimingController::class, 'update']);
+    });
+
+    /** Event type routes */
+    Route::prefix('event-types')->middleware('permission:events.manage,api')->group(function (): void {
+        Route::get('options', [EventTypeController::class, 'options']);
+        Route::get('', [EventTypeController::class, 'index']);
+        Route::post('', [EventTypeController::class, 'store']);
+        Route::get('{eventType}', [EventTypeController::class, 'show'])->whereNumber('eventType');
+        Route::put('{eventType}', [EventTypeController::class, 'update'])->whereNumber('eventType');
+        Route::delete('{eventType}', [EventTypeController::class, 'destroy'])->whereNumber('eventType');
+    });
+
+    /** Event routes */
+    Route::prefix('events')->middleware('permission:events.manage,api')->group(function (): void {
+        Route::get('', [EventController::class, 'index']);
+        Route::post('', [EventController::class, 'store']);
+        Route::get('{event}', [EventController::class, 'show'])->whereNumber('event');
+        Route::put('{event}', [EventController::class, 'update'])->whereNumber('event');
+        Route::delete('{event}', [EventController::class, 'destroy'])->whereNumber('event');
     });
 });
