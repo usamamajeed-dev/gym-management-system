@@ -3,6 +3,7 @@
 declare(strict_types=1);
 
 use App\Http\Controllers\Api\Admin\AuthController as AdminAuthController;
+use App\Http\Controllers\Api\Admin\GymTimingController;
 use App\Http\Controllers\Api\Admin\MemberController;
 use Illuminate\Support\Facades\Route;
 
@@ -43,5 +44,11 @@ Route::middleware(['auth:api', 'role:admin,api'])->group(function (): void {
             Route::post('{member}/activate', [MemberController::class, 'activate'])->whereNumber('member');
             Route::post('{member}/deactivate', [MemberController::class, 'deactivate'])->whereNumber('member');
         });
+    });
+
+    /** Gym timing routes */
+    Route::prefix('gym-timings')->middleware('permission:timings.manage,api')->group(function (): void {
+        Route::get('', [GymTimingController::class, 'index']);
+        Route::put('', [GymTimingController::class, 'update']);
     });
 });

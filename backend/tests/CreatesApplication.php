@@ -34,6 +34,7 @@ trait CreatesApplication
         Artisan::call('config:clear');
         Artisan::call('migrate:fresh', ['--force' => true]);
         Artisan::call('db:seed', ['--class' => 'RolePermissionSeeder', '--force' => true]);
+        Artisan::call('db:seed', ['--class' => 'GymTimingSeeder', '--force' => true]);
 
         // Reuse the existing signing keys so local dev tokens stay valid; create them only if missing.
         if (! file_exists(storage_path('oauth-private.key'))) {
