@@ -4,11 +4,14 @@ declare(strict_types=1);
 
 namespace App\Services;
 
+use App\Exceptions\ApiException;
 use App\Models\Event;
 use App\Repositories\EventRepository;
 use App\Services\Base\BaseService;
 use App\Support\DateFormat;
+use Carbon\CarbonInterface;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Http\Request;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Carbon;
@@ -36,6 +39,22 @@ class EventService extends BaseService
     public function show(Event $event): Event
     {
         return $event->load(['eventType', 'createdBy']);
+    }
+
+    /** Published events overlapping the month of $month (gym time), earliest first. */
+    public function publishedForMonth(CarbonInterface $month): Collection
+    {
+        return $this->eventRepository->forMonth($month);
+    }
+
+    /** A published event for members; drafts are reported as not found so they aren't leaked. */
+    public function findPublished(Event $event): Event
+    {
+        if (! $event->is_published) {
+            throw ApiException::notFound('Event not found');
+        }
+
+        return $event->load('eventType');
     }
 
     public function createEvent(array $data, ?UploadedFile $image): Event

@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Services;
 
 use App\Enums\ContentStatus;
+use App\Enums\ContentType;
 use App\Enums\ErrorCode;
 use App\Exceptions\ApiException;
 use App\Models\Content;
@@ -36,6 +37,22 @@ class ContentService extends BaseService
     public function list(Request $request): LengthAwarePaginator
     {
         return $this->contentRepository->index($request);
+    }
+
+    /** Member list: "current" = published, "archive" = archived. */
+    public function memberList(ContentType $type, string $period, Request $request): LengthAwarePaginator
+    {
+        return $this->contentRepository->memberIndex($type, $period, $request);
+    }
+
+    /** Published or archived content for members; drafts are reported as not found. */
+    public function findVisible(Content $content): Content
+    {
+        if ($content->status === ContentStatus::DRAFT) {
+            throw ApiException::notFound("{$content->label()} not found");
+        }
+
+        return $content;
     }
 
     public function createContent(array $data, ?UploadedFile $image): Content

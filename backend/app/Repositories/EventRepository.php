@@ -71,6 +71,12 @@ class EventRepository extends BaseRepository
             ->get();
     }
 
+    /** Number of published events overlapping the month of $month (gym time). */
+    public function countForMonth(CarbonInterface $month): int
+    {
+        return $this->query()->published()->overlappingMonth($month)->count();
+    }
+
     /** Published events that haven't started yet, earliest first. */
     public function upcoming(int $limit): Collection
     {

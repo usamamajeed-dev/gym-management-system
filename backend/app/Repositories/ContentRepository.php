@@ -77,6 +77,11 @@ class ContentRepository extends BaseRepository
             ->get();
     }
 
+    public function countPublished(ContentType $type): int
+    {
+        return $this->query()->ofType($type)->published()->count();
+    }
+
     /** Published news whose publish date is before $before (UTC). */
     public function publishedNewsBefore(DateTimeInterface $before): Builder
     {
