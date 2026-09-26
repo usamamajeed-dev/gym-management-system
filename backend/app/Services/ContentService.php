@@ -40,6 +40,18 @@ class ContentService extends BaseService
         return $this->contentRepository->index($request);
     }
 
+    /** Success message for the admin list: "News", "Policies" or "Contents" depending on the type filter. */
+    public function listMessage(Request $request): string
+    {
+        $label = match (ContentType::tryFrom((string) $request->query('type'))) {
+            ContentType::NEWS => 'News',
+            ContentType::POLICY => 'Policies',
+            null => 'Contents',
+        };
+
+        return "{$label} retrieved successfully";
+    }
+
     /** Member list: "current" = published, "archive" = archived. */
     public function memberList(ContentType $type, string $period, Request $request): LengthAwarePaginator
     {

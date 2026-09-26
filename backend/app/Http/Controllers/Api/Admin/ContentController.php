@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers\Api\Admin;
 
-use App\Enums\ContentType;
 use App\Http\Controllers\Base\BaseController;
 use App\Http\Requests\Admin\Content\StoreContentRequest;
 use App\Http\Requests\Admin\Content\UpdateContentRequest;
@@ -42,15 +41,9 @@ class ContentController extends BaseController
      */
     public function index(Request $request): JsonResponse
     {
-        $label = match (ContentType::tryFrom((string) $request->input('type'))) {
-            ContentType::NEWS => 'News',
-            ContentType::POLICY => 'Policies',
-            null => 'Contents',
-        };
-
         return $this->successResponse(
             new ContentResourceCollection($this->contentService->list($request)),
-            "{$label} retrieved successfully",
+            $this->contentService->listMessage($request),
         );
     }
 
