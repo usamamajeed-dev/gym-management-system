@@ -1,0 +1,207 @@
+<app-page-header
+  title="Events"
+  [subtitle]="'Plan classes, workshops and more. Times are in ' + (timezone() || 'gym time') + '.'"
+>
+  <a mat-stroked-button routerLink="/event-types">
+    <mat-icon>category</mat-icon>
+    Event types
+  </a>
+  <a mat-flat-button routerLink="/events/new">
+    <mat-icon>add</mat-icon>
+    New event
+  </a>
+</app-page-header>
+
+<section class="app-card app-table-card">
+  <div class="filter-bar">
+    <mat-form-field class="filter-bar__search">
+      <mat-icon matPrefix>search</mat-icon>
+      <input matInput [formControl]="searchControl" placeholder="Search title or location" aria-label="Search events" />
+    </mat-form-field>
+
+    <mat-form-field class="filter-bar__select">
+      <mat-select [value]="typeId()" (valueChange)="onType($event)" placeholder="All types" aria-label="Filter by type">
+        <mat-option [value]="null">All types</mat-option>
+        @for (t of typeOptions(); track t.value) {
+          <mat-option [value]="t.value"
+            ><span class="color-dot" [style.background]="t.color"></span>&nbsp; {{ t.title }}</mat-option
+          >
+        }
+      </mat-select>
+    </mat-form-field>
+
+    <mat-form-field class="range-field">
+      <mat-date-range-input [formGroup]="range" [rangePicker]="picker">
+        <input matStartDate formControlName="start" placeholder="From" aria-label="From date" />
+        <input matEndDate formControlName="end" placeholder="To" aria-label="To date" />
+      </mat-date-range-input>
+      <mat-datepicker-toggle matIconSuffix [for]="picker" />
+      <mat-date-range-picker #picker />
+    </mat-form-field>
+
+    <mat-button-toggle-group
+      [value]="published()"
+      (change)="onPublished($event.value)"
+      hideSingleSelectionIndicator
+      aria-label="Publish status"
+    >
+      <mat-button-toggle value="">All</mat-button-toggle>
+      <mat-button-toggle value="true">Published</mat-button-toggle>
+      <mat-button-toggle value="false">Drafts</mat-button-toggle>
+    </mat-button-toggle-group>
+
+    @if (hasFilters()) {
+      <button mat-button (click)="clearFilters()"><mat-icon>filter_alt_off</mat-icon>Clear</button>
+    }
+    <span class="filter-bar__spacer"></span>
+    @if (result()) {
+      <span class="text-muted">{{ total() }} {{ total() === 1 ? 'event' : 'events' }}</span>
+    }
+  </div>
+
+  @if (error() && !result()) {
+    <app-empty-state icon="cloud_off" tone="danger" title="Couldn't load events" [message]="error() ?? ''">
+      <button mat-flat-button (click)="reload()">Try again</button>
+    </app-empty-state>
+  } @else if (loading() && !result()) {
+    <div class="skeleton-rows">
+      @for (i of [1, 2, 3, 4, 5]; track i) {
+        <span class="skeleton" style="height: 52px"></span>
+      }
+    </div>
+  } @else if (rows().length === 0) {
+    <app-empty-state
+      [icon]="hasFilters() ? 'search_off' : 'event'"
+      [title]="hasFilters() ? 'No events match your filters' : 'No events yet'"
+      [message]="
+        hasFilters()
+          ? 'Try changing or clearing the filters.'
+          : 'Create your first event and publish it to show it in the member app.'
+      "
+    >
+      @if (hasFilters()) {
+        <button mat-stroked-button (click)="clearFilters()">Clear filters</button>
+      } @else {
+        <a mat-flat-button routerLink="/events/new"><mat-icon>add</mat-icon>New event</a>
+      }
+    </app-empty-state>
+  } @else {
+    <div class="app-table-scroll" [class.is-refreshing]="loading()">
+      <table
+        mat-table
+        class="app-table"
+        [dataSource]="rows()"
+        matSort
+        [matSortActive]="sortColumn()"
+        [matSortDirection]="sortDir()"
+        (matSortChange)="onSort($event)"
+      >
+        <ng-container matColumnDef="title">
+          <th mat-header-cell *matHeaderCellDef mat-sort-header>Event</th>
+          <td mat-cell *matCellDef="let e">
+            <div class="event-cell" [class.event-cell--past]="isPast(e)">
+              @if (e.image_url) {
+                <img class="thumb thumb--lg" [src]="e.image_url" alt="" loading="lazy" />
+              } @else {
+                <span class="thumb thumb--lg thumb--placeholder" [style.--type-color]="e.event_type?.color">
+                  <mat-icon>event</mat-icon>
+                </span>
+              }
+              <span class="event-cell__text">
+                <strong class="truncate">{{ e.title }}</strong>
+                <small>
+                  @if (columns().length === 2) {
+                    {{ formatDay(e.starts_at) }} · {{ formatTimeRange(e.starts_at, e.ends_at) }}
+                  } @else {
+                    <mat-icon>location_on</mat-icon>{{ e.location || 'No location' }}
+                  }
+                </small>
+                @if (columns().length === 2) {
+                  <span class="event-cell__chips">
+                    @if (e.event_type) {
+                      <span class="type-badge" [style.--type-color]="e.event_type.color"
+                        ><i></i>{{ e.event_type.title }}</span
+                      >
+                    }
+                    <app-status-chip [status]="e.is_published ? 'published' : 'draft'" />
+                  </span>
+                }
+              </span>
+            </div>
+          </td>
+        </ng-container>
+
+        <ng-container matColumnDef="type">
+          <th mat-header-cell *matHeaderCellDef>Type</th>
+          <td mat-cell *matCellDef="let e">
+            @if (e.event_type) {
+              <span class="type-badge" [style.--type-color]="e.event_type.color"><i></i>{{ e.event_type.title }}</span>
+            }
+          </td>
+        </ng-container>
+
+        <ng-container matColumnDef="starts_at">
+          <th mat-header-cell *matHeaderCellDef mat-sort-header>When</th>
+          <td mat-cell *matCellDef="let e" class="nowrap">
+            <span class="when">{{ formatDay(e.starts_at) }}</span>
+            <span class="when-sub">{{ formatTimeRange(e.starts_at, e.ends_at) }}</span>
+          </td>
+        </ng-container>
+
+        <ng-container matColumnDef="status">
+          <th mat-header-cell *matHeaderCellDef>Status</th>
+          <td mat-cell *matCellDef="let e">
+            <div class="row-gap">
+              <app-status-chip [status]="e.is_published ? 'published' : 'draft'" />
+              @if (isPast(e)) {
+                <app-status-chip label="Finished" tone="neutral" />
+              }
+            </div>
+          </td>
+        </ng-container>
+
+        <ng-container matColumnDef="actions">
+          <th mat-header-cell *matHeaderCellDef class="cell-actions">
+            <span class="cdk-visually-hidden">Actions</span>
+          </th>
+          <td mat-cell *matCellDef="let e" class="cell-actions" (click)="$event.stopPropagation()">
+            <button mat-icon-button [matMenuTriggerFor]="menu" [attr.aria-label]="'Actions for ' + e.title">
+              <mat-icon>more_vert</mat-icon>
+            </button>
+            <mat-menu #menu="matMenu" xPosition="before">
+              <button mat-menu-item (click)="edit(e)"><mat-icon>edit</mat-icon><span>Edit</span></button>
+              <button mat-menu-item (click)="togglePublished(e)">
+                <mat-icon>{{ e.is_published ? 'visibility_off' : 'visibility' }}</mat-icon>
+                <span>{{ e.is_published ? 'Unpublish' : 'Publish' }}</span>
+              </button>
+              <mat-divider />
+              <button mat-menu-item class="menu-danger" (click)="remove(e)">
+                <mat-icon>delete</mat-icon><span>Delete</span>
+              </button>
+            </mat-menu>
+          </td>
+        </ng-container>
+
+        <tr mat-header-row *matHeaderRowDef="columns()"></tr>
+        <tr
+          mat-row
+          *matRowDef="let e; columns: columns()"
+          class="clickable-row"
+          tabindex="0"
+          (click)="edit(e)"
+          (keydown.enter)="edit(e)"
+        ></tr>
+      </table>
+    </div>
+
+    <mat-paginator
+      class="app-paginator"
+      [length]="total()"
+      [pageIndex]="page() - 1"
+      [pageSize]="pageSize()"
+      [pageSizeOptions]="pageSizes"
+      (page)="onPage($event)"
+      aria-label="Select page of events"
+    />
+  }
+</section>

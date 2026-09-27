@@ -1,0 +1,185 @@
+<app-page-header
+  [title]="isEdit() ? 'Edit event' : 'New event'"
+  [subtitle]="isEdit() ? (event()?.title ?? '') : 'Create an event for your members. Publish it to show it in the app.'"
+  backLink="/events"
+  backLabel="All events"
+>
+  <button mat-button (click)="cancel()">Cancel</button>
+  <button mat-flat-button (click)="save()" [disabled]="saving() || loading() || !!loadError()">
+    @if (saving()) {
+      <mat-progress-spinner mode="indeterminate" diameter="18" strokeWidth="2.5" class="btn-spinner" />
+    } @else {
+      <mat-icon>{{ isEdit() ? 'save' : 'add' }}</mat-icon>
+    }
+    {{ isEdit() ? 'Save changes' : 'Create event' }}
+  </button>
+</app-page-header>
+
+@if (loadError()) {
+  <section class="app-card">
+    <app-empty-state icon="event_busy" tone="danger" title="Couldn't open this event" [message]="loadError() ?? ''">
+      <button mat-flat-button (click)="cancel()">Back to events</button>
+    </app-empty-state>
+  </section>
+} @else if (loading()) {
+  <div class="layout">
+    <span class="skeleton" style="height: 520px; border-radius: 14px"></span>
+    <span class="skeleton" style="height: 360px; border-radius: 14px"></span>
+  </div>
+} @else {
+  <form class="layout" [formGroup]="form" (ngSubmit)="save()" novalidate>
+    <div class="main">
+      <section class="app-card">
+        <header class="app-card__header"><h2>Details</h2></header>
+        <div class="app-card__body">
+          <div class="form-grid">
+            <mat-form-field class="span-2">
+              <mat-label>Event type</mat-label>
+              <mat-select formControlName="event_type_id">
+                <mat-select-trigger>
+                  @if (selectedType(); as t) {
+                    <span class="option"
+                      ><span class="color-dot" [style.background]="t.color"></span>{{ t.title }}</span
+                    >
+                  }
+                </mat-select-trigger>
+                @for (t of options(); track t.value) {
+                  <mat-option [value]="t.value">
+                    <span class="option"
+                      ><span class="color-dot" [style.background]="t.color"></span>{{ t.title }}</span
+                    >
+                  </mat-option>
+                }
+              </mat-select>
+              @if (options().length === 0) {
+                <mat-hint>No active event types yet — create one under Event Types.</mat-hint>
+              }
+              <mat-error><app-field-error [control]="form.controls.event_type_id" label="Event type" /></mat-error>
+            </mat-form-field>
+
+            <mat-form-field class="span-2">
+              <mat-label>Title</mat-label>
+              <input matInput formControlName="title" maxlength="150" placeholder="e.g. Morning Yoga Flow" />
+              <mat-hint align="end">{{ value().title?.length ?? 0 }} / 150</mat-hint>
+              <mat-error><app-field-error [control]="form.controls.title" label="Title" /></mat-error>
+            </mat-form-field>
+
+            <mat-form-field class="span-2">
+              <mat-label>Description</mat-label>
+              <textarea
+                matInput
+                rows="5"
+                formControlName="description"
+                maxlength="5000"
+                placeholder="What should members know?"
+              ></textarea>
+              <mat-error><app-field-error [control]="form.controls.description" label="Description" /></mat-error>
+            </mat-form-field>
+
+            <mat-form-field>
+              <mat-label>Location</mat-label>
+              <mat-icon matPrefix class="prefix">location_on</mat-icon>
+              <input matInput formControlName="location" maxlength="150" placeholder="Studio 1" />
+              <mat-error><app-field-error [control]="form.controls.location" label="Location" /></mat-error>
+            </mat-form-field>
+
+            <mat-form-field>
+              <mat-label>Capacity</mat-label>
+              <mat-icon matPrefix class="prefix">groups</mat-icon>
+              <input matInput type="number" min="1" step="1" formControlName="capacity" placeholder="Optional" />
+              <mat-error><app-field-error [control]="form.controls.capacity" label="Capacity" /></mat-error>
+            </mat-form-field>
+          </div>
+        </div>
+      </section>
+
+      <section class="app-card">
+        <header class="app-card__header">
+          <div>
+            <h2>Schedule</h2>
+            <span class="app-card__hint">Times are in {{ timezone() || 'gym time' }}</span>
+          </div>
+        </header>
+        <div class="app-card__body">
+          <div class="schedule">
+            <span class="schedule__label">Starts</span>
+            <mat-form-field>
+              <mat-label>Date</mat-label>
+              <input matInput [matDatepicker]="startPicker" formControlName="start_date" />
+              <mat-datepicker-toggle matIconSuffix [for]="startPicker" />
+              <mat-datepicker #startPicker />
+              <mat-error><app-field-error [control]="form.controls.start_date" label="Start date" /></mat-error>
+            </mat-form-field>
+            <mat-form-field>
+              <mat-label>Time</mat-label>
+              <input matInput type="time" formControlName="start_time" />
+              <mat-error><app-field-error [control]="form.controls.start_time" label="Start time" /></mat-error>
+            </mat-form-field>
+
+            <span class="schedule__label">Ends <small>optional</small></span>
+            <mat-form-field>
+              <mat-label>Date</mat-label>
+              <input matInput [matDatepicker]="endPicker" formControlName="end_date" [min]="value().start_date" />
+              <mat-datepicker-toggle matIconSuffix [for]="endPicker" />
+              <mat-datepicker #endPicker />
+              <mat-error><app-field-error [control]="form.controls.end_date" label="End date" /></mat-error>
+            </mat-form-field>
+            <mat-form-field>
+              <mat-label>Time</mat-label>
+              <input matInput type="time" formControlName="end_time" />
+            </mat-form-field>
+          </div>
+          @if (scheduleError() && (form.touched || form.dirty)) {
+            <p class="form-error"><mat-icon>error</mat-icon>{{ scheduleError() }}</p>
+          }
+        </div>
+      </section>
+    </div>
+
+    <aside class="side">
+      <section class="app-card">
+        <header class="app-card__header"><h2>Cover image</h2></header>
+        <div class="app-card__body">
+          <app-image-upload [imageUrl]="event()?.image_url ?? null" (changed)="onImage($event)" />
+          @if (imageError()) {
+            <p class="form-error"><mat-icon>error</mat-icon>{{ imageError() }}</p>
+          }
+        </div>
+      </section>
+
+      <section class="app-card">
+        <div class="publish">
+          <div>
+            <strong>{{ value().is_published ? 'Published' : 'Draft' }}</strong>
+            <p>{{ value().is_published ? 'Visible to members in the app.' : 'Only admins can see this event.' }}</p>
+          </div>
+          <mat-slide-toggle formControlName="is_published" aria-label="Published" />
+        </div>
+      </section>
+
+      <section class="app-card">
+        <header class="app-card__header">
+          <div>
+            <h2>App preview</h2>
+            <span class="app-card__hint">How members will see it</span>
+          </div>
+        </header>
+        <div class="app-card__body">
+          <div class="preview" [style.--type-color]="selectedType()?.color ?? '#94a3b8'">
+            <span class="preview__stripe"></span>
+            <div class="preview__body">
+              @if (selectedType(); as t) {
+                <span class="type-badge"><i></i>{{ t.title }}</span>
+              }
+              <strong>{{ value().title || 'Event title' }}</strong>
+              <small><mat-icon>schedule</mat-icon>{{ previewDate() }}</small>
+              @if (value().location) {
+                <small><mat-icon>location_on</mat-icon>{{ value().location }}</small>
+              }
+            </div>
+          </div>
+        </div>
+      </section>
+    </aside>
+  </form>
+}

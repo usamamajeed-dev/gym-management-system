@@ -454,16 +454,6 @@
   }
 }
 
-.type-badge {
-  flex: none;
-  padding: 3px 9px;
-  border-radius: 999px;
-  background: color-mix(in srgb, var(--type-color) 12%, white);
-  color: color-mix(in srgb, var(--type-color) 80%, black);
-  font-size: 11.5px;
-  font-weight: 600;
-}
-
 // ------------------------------------------------------------ responsive
 
 @media (max-width: 1399.98px) {

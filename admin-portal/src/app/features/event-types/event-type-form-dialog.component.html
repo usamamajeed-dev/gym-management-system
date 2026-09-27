@@ -1,0 +1,81 @@
+<div class="dialog-head">
+  <span class="dialog-icon"><mat-icon class="icon-filled">category</mat-icon></span>
+  <div>
+    <h2 mat-dialog-title>{{ existing ? 'Edit event type' : 'New event type' }}</h2>
+    <p class="dialog-sub">Types group events in the app, e.g. Class, Workshop or Competition.</p>
+  </div>
+</div>
+
+<form [formGroup]="form" (ngSubmit)="save()" novalidate>
+  <mat-dialog-content>
+    <div class="preview">
+      <span class="preview__label">Preview</span>
+      <span class="type-badge" [style.--type-color]="pickerValue()"> <i></i>{{ value().name || 'Event type' }} </span>
+    </div>
+
+    <mat-form-field class="full-width">
+      <mat-label>Name</mat-label>
+      <input matInput formControlName="name" maxlength="100" autocomplete="off" />
+      <mat-error><app-field-error [control]="form.controls.name" label="Name" /></mat-error>
+    </mat-form-field>
+
+    <label class="field-label" for="type-color-hex">Badge colour</label>
+    <div class="color-row">
+      <input
+        type="color"
+        class="color-picker"
+        [value]="pickerValue()"
+        (input)="onPickerInput($any($event.target).value)"
+        aria-label="Pick a colour"
+      />
+      <mat-form-field class="hex-field">
+        <input
+          id="type-color-hex"
+          matInput
+          formControlName="color"
+          maxlength="7"
+          placeholder="#4F46E5"
+          autocomplete="off"
+        />
+        <mat-error><app-field-error [control]="form.controls.color" label="Colour" /></mat-error>
+      </mat-form-field>
+    </div>
+    <div class="presets" role="group" aria-label="Colour presets">
+      @for (c of presets; track c) {
+        <button
+          type="button"
+          class="preset"
+          [class.preset--active]="value().color?.toUpperCase() === c"
+          [style.background]="c"
+          [attr.aria-label]="'Use ' + c"
+          (click)="choosePreset(c)"
+        ></button>
+      }
+    </div>
+
+    <mat-form-field class="full-width">
+      <mat-label>Description</mat-label>
+      <textarea matInput rows="3" formControlName="description" maxlength="1000"></textarea>
+      <mat-hint align="end">{{ value().description?.length ?? 0 }} / 1000</mat-hint>
+      <mat-error><app-field-error [control]="form.controls.description" label="Description" /></mat-error>
+    </mat-form-field>
+
+    <div class="toggle-row">
+      <div>
+        <strong>Active</strong>
+        <p>Inactive types can't be chosen for new events.</p>
+      </div>
+      <mat-slide-toggle formControlName="is_active" aria-label="Active" />
+    </div>
+  </mat-dialog-content>
+
+  <mat-dialog-actions align="end">
+    <button mat-button type="button" mat-dialog-close>Cancel</button>
+    <button mat-flat-button type="submit" [disabled]="saving()">
+      @if (saving()) {
+        <mat-progress-spinner mode="indeterminate" diameter="18" strokeWidth="2.5" class="btn-spinner" />
+      }
+      {{ existing ? 'Save changes' : 'Create type' }}
+    </button>
+  </mat-dialog-actions>
+</form>

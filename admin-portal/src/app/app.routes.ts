@@ -36,6 +36,18 @@ export const routes: Routes = [
         title: 'Gym Timings · Gym Admin',
         loadComponent: () => import('./features/gym-timings/gym-timings.component').then((m) => m.GymTimingsComponent),
       },
+      {
+        path: 'events',
+        canActivate: [permissionGuard('events.manage')],
+        loadChildren: () => import('./features/events/events.routes').then((m) => m.EVENTS_ROUTES),
+      },
+      {
+        path: 'event-types',
+        canActivate: [permissionGuard('events.manage')],
+        title: 'Event Types · Gym Admin',
+        loadComponent: () =>
+          import('./features/event-types/event-type-list.component').then((m) => m.EventTypeListComponent),
+      },
       { path: '', pathMatch: 'full', redirectTo: 'dashboard' },
     ],
   },
