@@ -1,0 +1,5 @@
+dist
+node_modules
+.angular
+coverage
+src/styles/_theme-colors.scss

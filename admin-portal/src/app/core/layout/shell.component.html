@@ -1,0 +1,126 @@
+<mat-sidenav-container class="shell" autosize>
+  <mat-sidenav
+    class="sidebar"
+    [mode]="isHandset() ? 'over' : 'side'"
+    [opened]="sidenavOpened()"
+    [fixedInViewport]="isHandset()"
+    (closedStart)="onSidenavClosed()"
+  >
+    <div class="sidebar__inner">
+      <a class="brand" routerLink="/dashboard" aria-label="Gym Admin home">
+        <span class="brand__logo" aria-hidden="true">
+          <svg viewBox="0 0 64 64">
+            <rect x="10" y="24" width="6" height="16" rx="2" />
+            <rect x="48" y="24" width="6" height="16" rx="2" />
+            <rect x="17" y="19" width="7" height="26" rx="2.5" />
+            <rect x="40" y="19" width="7" height="26" rx="2.5" />
+            <rect x="24" y="29.5" width="16" height="5" rx="2" />
+          </svg>
+        </span>
+        <span class="brand__text">
+          <strong>Gym Admin</strong>
+          <small>Management portal</small>
+        </span>
+      </a>
+
+      <nav class="nav" aria-label="Main navigation">
+        @for (section of sections(); track section.title) {
+          <div class="nav__section">
+            <p class="nav__title">{{ section.title }}</p>
+            @for (item of section.items; track item.path) {
+              <a
+                class="nav__link"
+                [routerLink]="item.path"
+                routerLinkActive="nav__link--active"
+                #rla="routerLinkActive"
+                [attr.aria-current]="rla.isActive ? 'page' : null"
+              >
+                <mat-icon [class.icon-filled]="rla.isActive">{{ item.icon }}</mat-icon>
+                <span class="nav__label">{{ item.label }}</span>
+                @if (item.badge === 'pendingMembers' && pending.count() > 0) {
+                  <span
+                    class="nav__badge"
+                    [matTooltip]="pending.count() + ' awaiting approval'"
+                    matTooltipPosition="right"
+                  >
+                    {{ pending.count() > 99 ? '99+' : pending.count() }}
+                  </span>
+                }
+              </a>
+            }
+          </div>
+        }
+      </nav>
+
+      <div class="sidebar__footer">
+        <div class="sidebar__user">
+          <span class="avatar avatar--sidebar">{{ auth.initials() }}</span>
+          <span class="sidebar__user-text">
+            <strong>{{ auth.user()?.name }}</strong>
+            <small>Administrator</small>
+          </span>
+        </div>
+      </div>
+    </div>
+  </mat-sidenav>
+
+  <mat-sidenav-content class="main">
+    <header class="topbar">
+      @if (isHandset()) {
+        <button mat-icon-button class="topbar__menu" aria-label="Open navigation" (click)="toggleMenu()">
+          <mat-icon>menu</mat-icon>
+        </button>
+      }
+
+      <div class="topbar__context">
+        @if (current(); as item) {
+          <span class="topbar__crumb">
+            <mat-icon>{{ item.icon }}</mat-icon>
+            {{ item.label }}
+          </span>
+        }
+      </div>
+
+      <span class="topbar__date hide-sm">
+        <mat-icon>calendar_today</mat-icon>
+        {{ today }}
+      </span>
+
+      <button
+        type="button"
+        class="user-button"
+        matRipple
+        [matMenuTriggerFor]="userMenu"
+        #trigger="matMenuTrigger"
+        [class.user-button--open]="trigger.menuOpen"
+        aria-label="Account menu"
+      >
+        <span class="avatar avatar--sm">{{ auth.initials() }}</span>
+        <span class="user-button__text hide-xs">
+          <strong>{{ auth.user()?.name }}</strong>
+          <small>Administrator</small>
+        </span>
+        <mat-icon class="user-button__chevron">expand_more</mat-icon>
+      </button>
+
+      <mat-menu #userMenu="matMenu" xPosition="before" class="user-menu">
+        <div class="user-menu__header">
+          <span class="avatar">{{ auth.initials() }}</span>
+          <div>
+            <strong>{{ auth.user()?.name }}</strong>
+            <small>{{ auth.user()?.email }}</small>
+          </div>
+        </div>
+        <mat-divider />
+        <button mat-menu-item class="menu-danger" (click)="logout()">
+          <mat-icon>logout</mat-icon>
+          <span>Sign out</span>
+        </button>
+      </mat-menu>
+    </header>
+
+    <main class="content">
+      <router-outlet />
+    </main>
+  </mat-sidenav-content>
+</mat-sidenav-container>

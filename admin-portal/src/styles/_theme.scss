@@ -1,0 +1,293 @@
+// Gym Admin theme: brand colour tokens, the Material 3 theme and component overrides.
+// Indigo is the primary brand colour, orange the energetic accent, slate the neutrals.
+@use '@angular/material' as mat;
+@use './theme-colors' as brand;
+
+// ------------------------------------------------------------ brand tokens
+
+@mixin tokens {
+  // Brand
+  --app-primary: #4f46e5;
+  --app-primary-strong: #4338ca;
+  --app-primary-soft: #eef2ff;
+  --app-primary-ring: rgba(79, 70, 229, 0.18);
+  --app-accent: #f97316;
+  --app-accent-strong: #ea580c;
+  --app-accent-soft: #fff7ed;
+
+  // Surfaces & text
+  --app-bg: #f4f6fb;
+  --app-surface: #ffffff;
+  --app-surface-muted: #f8fafc;
+  --app-border: #e6e9f2;
+  --app-border-strong: #d5dae6;
+  --app-text: #0f172a;
+  --app-text-secondary: #475569;
+  --app-text-muted: #64748b;
+  --app-text-faint: #94a3b8;
+
+  // Status
+  --app-success: #059669;
+  --app-success-soft: #ecfdf5;
+  --app-warning: #d97706;
+  --app-warning-soft: #fffbeb;
+  --app-danger: #dc2626;
+  --app-danger-soft: #fef2f2;
+  --app-info: #0284c7;
+  --app-info-soft: #f0f9ff;
+  --app-neutral: #64748b;
+  --app-neutral-soft: #f1f5f9;
+
+  // Sidebar
+  --app-sidebar-bg: #0b1120;
+  --app-sidebar-bg-2: #111a2e;
+  --app-sidebar-text: #94a3b8;
+  --app-sidebar-text-strong: #f8fafc;
+  --app-sidebar-hover: rgba(148, 163, 184, 0.08);
+  --app-sidebar-active: rgba(99, 102, 241, 0.18);
+  --app-sidebar-active-bar: #818cf8;
+  --app-sidebar-divider: rgba(148, 163, 184, 0.12);
+
+  // Shape & depth
+  --app-radius-lg: 18px;
+  --app-radius: 14px;
+  --app-radius-sm: 10px;
+  --app-radius-xs: 8px;
+  --app-shadow-xs: 0 1px 2px rgba(15, 23, 42, 0.05);
+  --app-shadow-sm: 0 1px 3px rgba(15, 23, 42, 0.06), 0 1px 2px rgba(15, 23, 42, 0.04);
+  --app-shadow-md: 0 10px 24px -12px rgba(15, 23, 42, 0.18), 0 2px 6px rgba(15, 23, 42, 0.05);
+  --app-shadow-lg: 0 24px 48px -20px rgba(15, 23, 42, 0.28);
+
+  // Layout
+  --app-sidebar-width: 272px;
+  --app-topbar-height: 68px;
+  --app-content-max: 1440px;
+  --app-font: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+}
+
+// ------------------------------------------------------------ Material theme + overrides
+
+@mixin material {
+  @include mat.theme(
+    (
+      color: (
+        theme-type: light,
+        primary: brand.$primary-palette,
+        tertiary: brand.$tertiary-palette,
+      ),
+      typography: (
+        plain-family: 'Inter',
+        brand-family: 'Inter',
+        bold-weight: 600,
+        medium-weight: 500,
+        regular-weight: 400,
+      ),
+      density: 0,
+    )
+  );
+
+  @include mat.theme-overrides(
+    (
+      surface: #ffffff,
+      background: #f4f6fb,
+      outline-variant: #e6e9f2,
+    )
+  );
+
+  @include mat.card-overrides(
+    (
+      elevated-container-color: #ffffff,
+      elevated-container-shape: 16px,
+      elevated-container-elevation: 0 1px 3px rgba(15, 23, 42, 0.06),
+      outlined-container-color: #ffffff,
+      outlined-container-shape: 16px,
+      outlined-outline-color: #e6e9f2,
+      title-text-weight: 600,
+      title-text-size: 16px,
+      subtitle-text-color: #64748b,
+    )
+  );
+
+  @include mat.button-overrides(
+    (
+      filled-container-shape: 10px,
+      filled-container-height: 40px,
+      filled-label-text-weight: 600,
+      filled-horizontal-padding: 18px,
+      outlined-container-shape: 10px,
+      outlined-container-height: 40px,
+      outlined-label-text-weight: 600,
+      outlined-outline-color: #d5dae6,
+      text-container-shape: 10px,
+      text-label-text-weight: 600,
+      tonal-container-shape: 10px,
+      tonal-container-height: 40px,
+      tonal-label-text-weight: 600,
+      protected-container-shape: 10px,
+    )
+  );
+
+  @include mat.icon-button-overrides(
+    (
+      state-layer-size: 40px,
+    )
+  );
+
+  @include mat.form-field-overrides(
+    (
+      outlined-container-shape: 10px,
+      outlined-outline-color: #d5dae6,
+      outlined-hover-outline-color: #94a3b8,
+      container-text-size: 14px,
+      outlined-label-text-size: 14px,
+      subscript-text-size: 12px,
+    )
+  );
+
+  @include mat.select-overrides(
+    (
+      panel-background-color: #ffffff,
+      container-elevation-shadow: 0 16px 40px -16px rgba(15, 23, 42, 0.25),
+    )
+  );
+
+  @include mat.autocomplete-overrides(
+    (
+      background-color: #ffffff,
+    )
+  );
+
+  @include mat.dialog-overrides(
+    (
+      container-shape: 20px,
+      container-color: #ffffff,
+      headline-padding: 24px 24px 4px,
+      with-actions-content-padding: 12px 24px 8px,
+      actions-padding: 12px 24px 20px,
+      subhead-weight: 600,
+      subhead-size: 18px,
+      supporting-text-color: #475569,
+      supporting-text-size: 14px,
+    )
+  );
+
+  @include mat.menu-overrides(
+    (
+      container-shape: 12px,
+      container-color: #ffffff,
+      container-elevation-shadow: 0 16px 40px -16px rgba(15, 23, 42, 0.28),
+      item-label-text-size: 14px,
+      item-label-text-weight: 500,
+      item-icon-size: 20px,
+      item-icon-color: #64748b,
+    )
+  );
+
+  @include mat.table-overrides(
+    (
+      background-color: transparent,
+      header-container-height: 46px,
+      header-headline-color: #64748b,
+      header-headline-size: 12px,
+      header-headline-weight: 600,
+      header-headline-tracking: 0.04em,
+      row-item-container-height: 62px,
+      row-item-label-text-size: 14px,
+      row-item-outline-color: #eef0f5,
+    )
+  );
+
+  @include mat.paginator-overrides(
+    (
+      container-background-color: transparent,
+      container-text-color: #64748b,
+      container-text-size: 13px,
+    )
+  );
+
+  @include mat.sidenav-overrides(
+    (
+      container-width: 272px,
+      container-shape: 0,
+      container-background-color: #0b1120,
+      container-text-color: #94a3b8,
+      content-background-color: #f4f6fb,
+      container-divider-color: transparent,
+    )
+  );
+
+  @include mat.snack-bar-overrides(
+    (
+      container-shape: 12px,
+      container-color: #0f172a,
+      supporting-text-color: #f8fafc,
+      supporting-text-size: 14px,
+      button-color: #a5b4fc,
+    )
+  );
+
+  @include mat.tooltip-overrides(
+    (
+      container-color: #0f172a,
+      container-shape: 8px,
+      supporting-text-size: 12px,
+    )
+  );
+
+  @include mat.tabs-overrides(
+    (
+      divider-color: #e6e9f2,
+      label-text-weight: 600,
+      label-text-size: 14px,
+      active-indicator-height: 3px,
+      active-indicator-shape: 3px 3px 0 0,
+      inactive-label-text-color: #64748b,
+    )
+  );
+
+  @include mat.button-toggle-overrides(
+    (
+      shape: 10px,
+      height: 38px,
+      label-text-weight: 600,
+      label-text-size: 13px,
+      divider-color: #d5dae6,
+      selected-state-background-color: #eef2ff,
+      selected-state-text-color: #4338ca,
+    )
+  );
+
+  @include mat.slide-toggle-overrides(
+    (
+      selected-track-color: #4f46e5,
+      selected-hover-track-color: #4338ca,
+      selected-focus-track-color: #4338ca,
+      selected-pressed-track-color: #4338ca,
+    )
+  );
+
+  @include mat.progress-bar-overrides(
+    (
+      active-indicator-color: #f97316,
+      track-color: transparent,
+      active-indicator-height: 3px,
+      track-height: 3px,
+    )
+  );
+
+  @include mat.badge-overrides(
+    (
+      background-color: #f97316,
+      text-color: #ffffff,
+      text-weight: 700,
+      text-size: 11px,
+    )
+  );
+
+  @include mat.datepicker-overrides(
+    (
+      calendar-container-shape: 16px,
+      calendar-container-background-color: #ffffff,
+    )
+  );
+}

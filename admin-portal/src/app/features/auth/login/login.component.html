@@ -1,0 +1,128 @@
+<div class="login">
+  <aside class="login__brand" aria-hidden="true">
+    <div class="login__glow"></div>
+    <div class="login__brand-top">
+      <span class="logo">
+        <svg viewBox="0 0 64 64">
+          <rect x="10" y="24" width="6" height="16" rx="2" />
+          <rect x="48" y="24" width="6" height="16" rx="2" />
+          <rect x="17" y="19" width="7" height="26" rx="2.5" />
+          <rect x="40" y="19" width="7" height="26" rx="2.5" />
+          <rect x="24" y="29.5" width="16" height="5" rx="2" />
+        </svg>
+      </span>
+      <span class="login__brand-name">Gym Admin</span>
+    </div>
+
+    <div class="login__pitch">
+      <h1>Run your gym with <span>confidence</span>.</h1>
+      <p>Approve new members, keep opening hours up to date, and publish events and news — all in one place.</p>
+
+      <ul class="login__features">
+        <li>
+          <span><mat-icon>how_to_reg</mat-icon></span>
+          <div>
+            <strong>Member approvals</strong>
+            <small>Review registrations and activate members in seconds.</small>
+          </div>
+        </li>
+        <li>
+          <span><mat-icon>event_available</mat-icon></span>
+          <div>
+            <strong>Events & timings</strong>
+            <small>Plan classes and workshops and set weekly hours.</small>
+          </div>
+        </li>
+        <li>
+          <span><mat-icon>campaign</mat-icon></span>
+          <div>
+            <strong>News & policies</strong>
+            <small>Keep every member informed from the mobile app.</small>
+          </div>
+        </li>
+      </ul>
+    </div>
+
+    <p class="login__legal">© {{ year }} Gym Management</p>
+  </aside>
+
+  <main class="login__panel">
+    <div class="login__card">
+      <div class="login__mobile-brand">
+        <span class="logo logo--sm">
+          <svg viewBox="0 0 64 64">
+            <rect x="10" y="24" width="6" height="16" rx="2" />
+            <rect x="48" y="24" width="6" height="16" rx="2" />
+            <rect x="17" y="19" width="7" height="26" rx="2.5" />
+            <rect x="40" y="19" width="7" height="26" rx="2.5" />
+            <rect x="24" y="29.5" width="16" height="5" rx="2" />
+          </svg>
+        </span>
+        <strong>Gym Admin</strong>
+      </div>
+
+      <h2>Welcome back</h2>
+      <p class="login__subtitle">Sign in to the admin portal to manage your gym.</p>
+
+      @if (errorMessage()) {
+        <div class="alert" role="alert">
+          <mat-icon class="icon-filled">error</mat-icon>
+          <span>{{ errorMessage() }}</span>
+        </div>
+      }
+
+      <form [formGroup]="form" (ngSubmit)="submit()" novalidate>
+        <label class="field-label" for="email">Email address</label>
+        <mat-form-field appearance="outline" class="full">
+          <mat-icon matPrefix>mail</mat-icon>
+          <input
+            id="email"
+            matInput
+            type="email"
+            formControlName="email"
+            placeholder="you@gym.com"
+            autocomplete="username"
+          />
+          <mat-error><app-field-error [control]="form.controls.email" label="Email" /></mat-error>
+        </mat-form-field>
+
+        <label class="field-label" for="password">Password</label>
+        <mat-form-field appearance="outline" class="full">
+          <mat-icon matPrefix>lock</mat-icon>
+          <input
+            id="password"
+            matInput
+            [type]="showPassword() ? 'text' : 'password'"
+            formControlName="password"
+            placeholder="Enter your password"
+            autocomplete="current-password"
+          />
+          <button
+            mat-icon-button
+            matSuffix
+            type="button"
+            [attr.aria-label]="showPassword() ? 'Hide password' : 'Show password'"
+            (click)="showPassword.set(!showPassword())"
+          >
+            <mat-icon>{{ showPassword() ? 'visibility_off' : 'visibility' }}</mat-icon>
+          </button>
+          <mat-error><app-field-error [control]="form.controls.password" label="Password" /></mat-error>
+        </mat-form-field>
+
+        <button mat-flat-button class="submit" type="submit" [disabled]="submitting()">
+          @if (submitting()) {
+            <mat-progress-spinner mode="indeterminate" diameter="20" strokeWidth="2.5" />
+            Signing in…
+          } @else {
+            <span class="submit__label">Sign in <mat-icon class="submit__arrow">arrow_forward</mat-icon></span>
+          }
+        </button>
+      </form>
+
+      <p class="login__note">
+        <mat-icon>shield_lock</mat-icon>
+        Admin access only. Members sign in from the mobile app.
+      </p>
+    </div>
+  </main>
+</div>
