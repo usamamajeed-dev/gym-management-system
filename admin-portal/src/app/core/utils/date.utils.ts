@@ -12,11 +12,11 @@ const DAY_FMT = new Intl.DateTimeFormat('en-GB', {
   timeZone: 'UTC',
 });
 
-/** { date: '2026-10-05', time: '18:00' } in gym time, or null. */
+/** { date: '2026-10-05', time: '18:00' } in gym time, or null. Plain dates ('1995-06-15') get time '00:00'. */
 export function gymParts(iso: string | null | undefined): { date: string; time: string } | null {
-  const match = iso?.match(/^(\d{4}-\d{2}-\d{2})[T ](\d{2}:\d{2})/);
+  const match = iso?.match(/^(\d{4}-\d{2}-\d{2})(?:[T ](\d{2}:\d{2}))?/);
 
-  return match ? { date: match[1], time: match[2] } : null;
+  return match ? { date: match[1], time: match[2] ?? '00:00' } : null;
 }
 
 function utcDate(date: string): Date {

@@ -1,0 +1,86 @@
+<div class="dialog-head">
+  <span class="dialog-icon"><mat-icon class="icon-filled">edit</mat-icon></span>
+  <div>
+    <h2 mat-dialog-title>Edit member details</h2>
+    <p class="dialog-sub">Update contact and profile information. Status is changed with the approval actions.</p>
+  </div>
+</div>
+
+<form [formGroup]="form" (ngSubmit)="save()" novalidate>
+  <mat-dialog-content>
+    <h3 class="dialog-section">Personal</h3>
+    <div class="form-grid">
+      <mat-form-field class="span-2">
+        <mat-label>Full name</mat-label>
+        <input matInput formControlName="name" autocomplete="off" />
+        <mat-error><app-field-error [control]="form.controls.name" label="Name" /></mat-error>
+      </mat-form-field>
+
+      <mat-form-field>
+        <mat-label>Email</mat-label>
+        <input matInput type="email" formControlName="email" autocomplete="off" />
+        <mat-error><app-field-error [control]="form.controls.email" label="Email" /></mat-error>
+      </mat-form-field>
+
+      <mat-form-field>
+        <mat-label>Phone</mat-label>
+        <input matInput formControlName="phone" placeholder="+14155552671" autocomplete="off" />
+        <mat-hint>International format, e.g. +14155552671</mat-hint>
+        <mat-error><app-field-error [control]="form.controls.phone" label="Phone" /></mat-error>
+      </mat-form-field>
+
+      <mat-form-field>
+        <mat-label>Date of birth</mat-label>
+        <input matInput [matDatepicker]="dob" formControlName="date_of_birth" [max]="today" />
+        <mat-datepicker-toggle matIconSuffix [for]="dob" />
+        <mat-datepicker #dob startView="multi-year" />
+        <mat-error><app-field-error [control]="form.controls.date_of_birth" label="Date of birth" /></mat-error>
+      </mat-form-field>
+
+      <mat-form-field>
+        <mat-label>Gender</mat-label>
+        <mat-select formControlName="gender">
+          <mat-option [value]="null">Not specified</mat-option>
+          @for (g of genders; track g[0]) {
+            <mat-option [value]="g[0]">{{ g[1] }}</mat-option>
+          }
+        </mat-select>
+      </mat-form-field>
+
+      <mat-form-field class="span-2">
+        <mat-label>Address</mat-label>
+        <input matInput formControlName="address" autocomplete="off" />
+        <mat-error><app-field-error [control]="form.controls.address" label="Address" /></mat-error>
+      </mat-form-field>
+    </div>
+
+    <h3 class="dialog-section">Emergency contact</h3>
+    <div class="form-grid">
+      <mat-form-field>
+        <mat-label>Contact name</mat-label>
+        <input matInput formControlName="emergency_contact_name" autocomplete="off" />
+        <mat-error>
+          <app-field-error [control]="form.controls.emergency_contact_name" label="Contact name" />
+        </mat-error>
+      </mat-form-field>
+
+      <mat-form-field>
+        <mat-label>Contact phone</mat-label>
+        <input matInput formControlName="emergency_contact_phone" placeholder="+14155550000" autocomplete="off" />
+        <mat-error>
+          <app-field-error [control]="form.controls.emergency_contact_phone" label="Contact phone" />
+        </mat-error>
+      </mat-form-field>
+    </div>
+  </mat-dialog-content>
+
+  <mat-dialog-actions align="end">
+    <button mat-button type="button" mat-dialog-close>Cancel</button>
+    <button mat-flat-button type="submit" [disabled]="saving()">
+      @if (saving()) {
+        <mat-progress-spinner mode="indeterminate" diameter="18" strokeWidth="2.5" class="btn-spinner" />
+      }
+      Save changes
+    </button>
+  </mat-dialog-actions>
+</form>

@@ -1,0 +1,142 @@
+.tabs {
+  display: flex;
+  gap: 4px;
+  overflow-x: auto;
+  padding: 10px 14px 0;
+  border-bottom: 1px solid var(--app-border);
+}
+
+.tab {
+  position: relative;
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  gap: 8px;
+  height: 46px;
+  padding: 0 14px;
+  color: var(--app-text-muted);
+  font-size: 14px;
+  font-weight: 600;
+  white-space: nowrap;
+  transition: color 120ms ease;
+
+  mat-icon {
+    width: 18px;
+    height: 18px;
+    font-size: 18px;
+  }
+
+  &:hover {
+    color: var(--app-text);
+  }
+
+  &--active {
+    color: var(--app-primary);
+
+    &::after {
+      content: '';
+      position: absolute;
+      right: 10px;
+      bottom: -1px;
+      left: 10px;
+      height: 3px;
+      border-radius: 3px 3px 0 0;
+      background: var(--app-primary);
+    }
+  }
+}
+
+.tab__count {
+  display: inline-grid;
+  place-items: center;
+  min-width: 22px;
+  height: 20px;
+  padding: 0 6px;
+  border-radius: 999px;
+  background: var(--app-accent-soft);
+  color: var(--app-accent-strong);
+  font-size: 11.5px;
+  font-weight: 700;
+}
+
+.result-count {
+  color: var(--app-text-muted);
+  font-size: 13px;
+  font-weight: 500;
+}
+
+.filter-bar mat-icon[matPrefix] {
+  margin: 0 2px 0 10px;
+  color: var(--app-text-faint);
+}
+
+.chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+
+  &--inline {
+    margin-top: 6px;
+  }
+}
+
+.member-no {
+  padding: 3px 8px;
+  border-radius: 6px;
+  background: var(--app-neutral-soft);
+  color: var(--app-text-secondary);
+}
+
+.date {
+  display: block;
+  font-weight: 500;
+}
+
+.date-sub {
+  display: block;
+  color: var(--app-text-faint);
+  font-size: 12px;
+}
+
+.clickable-row {
+  cursor: pointer;
+}
+
+.quick-approve {
+  color: var(--app-success);
+}
+
+.is-refreshing {
+  opacity: 0.55;
+  transition: opacity 150ms ease;
+}
+
+.skeleton-list {
+  padding: 6px 20px;
+}
+
+.skeleton-row {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  height: 62px;
+  border-bottom: 1px solid var(--app-border);
+
+  &:last-child {
+    border-bottom: 0;
+  }
+}
+
+.skeleton--avatar {
+  flex: none;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+}
+
+.skeleton-row__text {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: 8px;
+}

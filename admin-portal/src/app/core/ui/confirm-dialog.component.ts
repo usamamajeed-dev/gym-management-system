@@ -28,51 +28,32 @@ const DEFAULT_ICONS: Record<ConfirmTone, string> = {
   imports: [MatDialogModule, MatButtonModule, MatIconModule],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
-    <div class="confirm" [attr.data-tone]="tone">
-      <div class="confirm__icon">
+    <div class="dialog-head">
+      <span class="dialog-icon" [class]="'dialog-icon dialog-icon--' + tone">
         <mat-icon class="icon-filled">{{ data.icon ?? defaultIcon }}</mat-icon>
+      </span>
+      <div>
+        <h2 mat-dialog-title>{{ data.title }}</h2>
+        <p class="dialog-sub">{{ data.message }}</p>
       </div>
-      <h2 mat-dialog-title>{{ data.title }}</h2>
-      <mat-dialog-content>
-        <p>{{ data.message }}</p>
-      </mat-dialog-content>
-      <mat-dialog-actions align="end">
-        <button mat-button [mat-dialog-close]="false">{{ data.cancelText ?? 'Cancel' }}</button>
-        <button mat-flat-button [class.btn-danger]="tone === 'danger'" [mat-dialog-close]="true" cdkFocusInitial>
-          {{ data.confirmText ?? 'Confirm' }}
-        </button>
-      </mat-dialog-actions>
     </div>
+    <mat-dialog-actions align="end">
+      <button mat-button [mat-dialog-close]="false">{{ data.cancelText ?? 'Cancel' }}</button>
+      <button
+        mat-flat-button
+        [class.btn-danger]="tone === 'danger'"
+        [class.btn-success]="tone === 'success'"
+        [class.btn-warning]="tone === 'warning'"
+        [mat-dialog-close]="true"
+        cdkFocusInitial
+      >
+        {{ data.confirmText ?? 'Confirm' }}
+      </button>
+    </mat-dialog-actions>
   `,
   styles: `
-    .confirm {
-      padding-top: 24px;
-      --tone: var(--app-primary);
-      --tone-soft: var(--app-primary-soft);
-    }
-    .confirm[data-tone='danger'] {
-      --tone: var(--app-danger);
-      --tone-soft: var(--app-danger-soft);
-    }
-    .confirm[data-tone='warning'] {
-      --tone: var(--app-warning);
-      --tone-soft: var(--app-warning-soft);
-    }
-    .confirm[data-tone='success'] {
-      --tone: var(--app-success);
-      --tone-soft: var(--app-success-soft);
-    }
-    .confirm__icon {
-      display: grid;
-      place-items: center;
-      width: 48px;
-      height: 48px;
-      margin: 0 24px 12px;
-      border-radius: 14px;
-      background: var(--tone-soft);
-      color: var(--tone);
-    }
-    p {
+    .dialog-sub {
+      margin-top: 6px;
       line-height: 1.6;
     }
   `,

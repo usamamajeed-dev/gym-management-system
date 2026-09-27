@@ -1,0 +1,35 @@
+<div class="dialog-head">
+  <span class="dialog-icon dialog-icon--danger"><mat-icon class="icon-filled">person_off</mat-icon></span>
+  <div>
+    <h2 mat-dialog-title>Reject registration</h2>
+    <p class="dialog-sub">{{ data.memberName }} will see this reason when they try to log in.</p>
+  </div>
+</div>
+
+<mat-dialog-content>
+  <label class="field-label" for="reject-reason">Reason</label>
+  <mat-form-field class="full-width">
+    <textarea
+      id="reject-reason"
+      matInput
+      rows="4"
+      [formControl]="reason"
+      [maxlength]="max"
+      placeholder="Explain why the registration can't be approved"
+    ></textarea>
+    <mat-hint align="end">{{ value().length }} / {{ max }}</mat-hint>
+    <mat-error><app-field-error [control]="reason" label="Reason" /></mat-error>
+  </mat-form-field>
+
+  <div class="suggestions">
+    <span>Quick reasons</span>
+    @for (text of suggestions; track text) {
+      <button type="button" class="suggestion" (click)="useSuggestion(text)">{{ text }}</button>
+    }
+  </div>
+</mat-dialog-content>
+
+<mat-dialog-actions align="end">
+  <button mat-button mat-dialog-close>Cancel</button>
+  <button mat-flat-button class="btn-danger" [disabled]="reason.invalid" (click)="submit()">Reject member</button>
+</mat-dialog-actions>

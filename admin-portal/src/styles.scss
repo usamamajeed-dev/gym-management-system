@@ -175,9 +175,21 @@ a {
     }
   }
 
+  @media (max-width: 719.98px) {
+    .mat-mdc-row {
+      height: auto;
+    }
+
+    .mat-mdc-cell {
+      padding-top: 12px;
+      padding-bottom: 12px;
+    }
+  }
+
   .cell-actions {
-    width: 56px;
+    width: 1%;
     text-align: right;
+    white-space: nowrap;
   }
 }
 
@@ -206,7 +218,7 @@ a {
   }
 
   .filter-bar__select {
-    width: 180px;
+    width: 200px;
   }
 
   .filter-bar__spacer {
@@ -215,6 +227,18 @@ a {
 
   .mat-mdc-form-field-subscript-wrapper {
     display: none;
+  }
+
+  @media (max-width: 599.98px) {
+    padding: 14px 16px;
+
+    .filter-bar__search,
+    .filter-bar__select {
+      flex: 1 1 100%;
+      width: 100%;
+      max-width: none;
+      min-width: 0;
+    }
   }
 }
 
@@ -255,6 +279,10 @@ a {
     display: flex;
     flex-direction: column;
     min-width: 0;
+
+    @media (max-width: 719.98px) {
+      max-width: 62vw;
+    }
   }
 
   &__name {
@@ -358,9 +386,21 @@ a {
 
 // ------------------------------------------------------------ danger buttons & menu items
 
-.mat-mdc-unelevated-button.btn-danger:not(:disabled) {
-  --mat-button-filled-container-color: var(--app-danger);
-  --mat-button-filled-label-text-color: #ffffff;
+.mat-mdc-unelevated-button:not(:disabled) {
+  &.btn-danger {
+    --mat-button-filled-container-color: var(--app-danger);
+    --mat-button-filled-label-text-color: #ffffff;
+  }
+
+  &.btn-success {
+    --mat-button-filled-container-color: var(--app-success);
+    --mat-button-filled-label-text-color: #ffffff;
+  }
+
+  &.btn-warning {
+    --mat-button-filled-container-color: var(--app-warning);
+    --mat-button-filled-label-text-color: #ffffff;
+  }
 }
 
 .mat-mdc-menu-item.menu-danger {
@@ -407,6 +447,106 @@ a {
 }
 
 // ------------------------------------------------------------ dialogs
+
+// Dialog header: tinted icon, title and one-line description.
+.dialog-head {
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+  padding: 24px 24px 4px;
+
+  .mat-mdc-dialog-title {
+    margin: 0;
+    padding: 0;
+    font-size: 18px;
+    font-weight: 700;
+    line-height: 1.35;
+
+    &::before {
+      display: none;
+    }
+  }
+}
+
+.dialog-icon {
+  --tone: var(--app-primary);
+  --tone-soft: var(--app-primary-soft);
+  display: grid;
+  flex: none;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
+  background: var(--tone-soft);
+  color: var(--tone);
+
+  &--danger {
+    --tone: var(--app-danger);
+    --tone-soft: var(--app-danger-soft);
+  }
+
+  &--success {
+    --tone: var(--app-success);
+    --tone-soft: var(--app-success-soft);
+  }
+
+  &--warning {
+    --tone: var(--app-warning);
+    --tone-soft: var(--app-warning-soft);
+  }
+}
+
+.dialog-sub {
+  margin-top: 2px;
+  color: var(--app-text-muted);
+  font-size: 13.5px;
+}
+
+.dialog-section {
+  margin: 12px 0;
+  color: var(--app-text-faint);
+  font-size: 11.5px;
+  font-weight: 700;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+}
+
+.field-label {
+  display: block;
+  margin: 8px 0 6px;
+  color: var(--app-text-secondary);
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.form-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+
+  .span-2 {
+    grid-column: span 2;
+  }
+
+  @media (max-width: 599.98px) {
+    grid-template-columns: 1fr;
+
+    .span-2 {
+      grid-column: auto;
+    }
+  }
+}
+
+.full-width {
+  width: 100%;
+}
+
+.btn-spinner {
+  display: inline-block;
+  margin-right: 8px;
+  vertical-align: middle;
+  --mat-progress-spinner-active-indicator-color: currentColor;
+}
 
 .app-dialog-panel {
   .mat-mdc-dialog-surface {

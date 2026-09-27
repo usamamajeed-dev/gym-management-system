@@ -1,0 +1,222 @@
+<app-page-header title="Members" subtitle="Review new registrations and manage everyone who trains at your gym.">
+  <button mat-stroked-button (click)="reload()" matTooltip="Reload the list">
+    <mat-icon>refresh</mat-icon>
+    Refresh
+  </button>
+</app-page-header>
+
+<section class="app-card app-table-card">
+  <nav class="tabs" aria-label="Filter by status">
+    @for (tab of tabs; track tab.value) {
+      <a
+        class="tab"
+        [class.tab--active]="status() === tab.value"
+        [routerLink]="[]"
+        [queryParams]="statusLink(tab.value)"
+        queryParamsHandling="merge"
+        [attr.aria-current]="status() === tab.value ? 'page' : null"
+      >
+        <mat-icon>{{ tab.icon }}</mat-icon>
+        {{ tab.label }}
+        @if (tab.value === 'pending' && pending.count() > 0) {
+          <span class="tab__count">{{ pending.count() }}</span>
+        }
+      </a>
+    }
+  </nav>
+
+  <div class="filter-bar">
+    <mat-form-field class="filter-bar__search">
+      <mat-icon matPrefix>search</mat-icon>
+      <input
+        matInput
+        [formControl]="searchControl"
+        placeholder="Search name, email, phone or membership no."
+        aria-label="Search members"
+      />
+      @if (searchControl.value) {
+        <button mat-icon-button matSuffix aria-label="Clear search" (click)="searchControl.setValue('')">
+          <mat-icon>close</mat-icon>
+        </button>
+      }
+    </mat-form-field>
+
+    <mat-form-field class="filter-bar__select">
+      <mat-icon matPrefix>toggle_on</mat-icon>
+      <mat-select [value]="activeFilter()" (valueChange)="onActiveFilter($event)" aria-label="Filter by activity">
+        <mat-option value="">Any activity</mat-option>
+        <mat-option value="true">Active</mat-option>
+        <mat-option value="false">Inactive</mat-option>
+      </mat-select>
+    </mat-form-field>
+
+    @if (hasFilters()) {
+      <button mat-button (click)="clearFilters()">
+        <mat-icon>filter_alt_off</mat-icon>
+        Clear filters
+      </button>
+    }
+
+    <span class="filter-bar__spacer"></span>
+    @if (result()) {
+      <span class="result-count">{{ total() }} {{ total() === 1 ? 'member' : 'members' }}</span>
+    }
+  </div>
+
+  @if (error() && !result()) {
+    <app-empty-state icon="cloud_off" tone="danger" title="Couldn't load members" [message]="error() ?? ''">
+      <button mat-flat-button (click)="reload()">Try again</button>
+    </app-empty-state>
+  } @else if (loading() && !result()) {
+    <div class="skeleton-list" aria-busy="true" aria-label="Loading members">
+      @for (i of skeletonRows; track i) {
+        <div class="skeleton-row">
+          <span class="skeleton skeleton--avatar"></span>
+          <span class="skeleton-row__text">
+            <span class="skeleton" style="width: 40%; height: 12px"></span>
+            <span class="skeleton" style="width: 60%; height: 10px"></span>
+          </span>
+          <span class="skeleton hide-xs" style="width: 90px; height: 22px; border-radius: 999px"></span>
+        </div>
+      }
+    </div>
+  } @else if (rows().length === 0) {
+    <app-empty-state
+      [icon]="hasFilters() ? 'search_off' : status() === 'pending' ? 'task_alt' : 'group'"
+      [title]="emptyTitle()"
+      [message]="emptyMessage()"
+    >
+      @if (hasFilters()) {
+        <button mat-stroked-button (click)="clearFilters()">Clear filters</button>
+      }
+    </app-empty-state>
+  } @else {
+    <div class="app-table-scroll" [class.is-refreshing]="loading()">
+      <table
+        mat-table
+        class="app-table"
+        [dataSource]="rows()"
+        matSort
+        [matSortActive]="sortColumn()"
+        [matSortDirection]="sortDir()"
+        (matSortChange)="onSort($event)"
+      >
+        <ng-container matColumnDef="name">
+          <th mat-header-cell *matHeaderCellDef mat-sort-header>Member</th>
+          <td mat-cell *matCellDef="let m">
+            <div class="person">
+              <span class="avatar">{{ initials(m.name) }}</span>
+              <span class="person__text">
+                <span class="person__name">{{ m.name }}</span>
+                <span class="person__meta">{{ m.email }}</span>
+                @if (compact()) {
+                  <span class="chips chips--inline">
+                    <app-status-chip [status]="m.status" />
+                    @if (m.status === 'approved') {
+                      <app-status-chip [status]="m.is_active ? 'active' : 'inactive'" />
+                    }
+                  </span>
+                }
+              </span>
+            </div>
+          </td>
+        </ng-container>
+
+        <ng-container matColumnDef="phone">
+          <th mat-header-cell *matHeaderCellDef>Phone</th>
+          <td mat-cell *matCellDef="let m" class="nowrap text-muted">{{ m.phone ?? '—' }}</td>
+        </ng-container>
+
+        <ng-container matColumnDef="membership_number">
+          <th mat-header-cell *matHeaderCellDef>Membership no.</th>
+          <td mat-cell *matCellDef="let m">
+            @if (m.membership_number) {
+              <span class="text-mono member-no">{{ m.membership_number }}</span>
+            } @else {
+              <span class="text-faint">—</span>
+            }
+          </td>
+        </ng-container>
+
+        <ng-container matColumnDef="status">
+          <th mat-header-cell *matHeaderCellDef mat-sort-header>Status</th>
+          <td mat-cell *matCellDef="let m">
+            <div class="chips">
+              <app-status-chip [status]="m.status" />
+              @if (m.status === 'approved') {
+                <app-status-chip [status]="m.is_active ? 'active' : 'inactive'" />
+              }
+            </div>
+          </td>
+        </ng-container>
+
+        <ng-container matColumnDef="created_at">
+          <th mat-header-cell *matHeaderCellDef mat-sort-header>Registered</th>
+          <td mat-cell *matCellDef="let m" class="nowrap">
+            <span class="date">{{ formatDate(m.created_at) }}</span>
+            <span class="date-sub">{{ timeAgo(m.created_at) }}</span>
+          </td>
+        </ng-container>
+
+        <ng-container matColumnDef="actions">
+          <th mat-header-cell *matHeaderCellDef class="cell-actions">
+            <span class="cdk-visually-hidden">Actions</span>
+          </th>
+          <td mat-cell *matCellDef="let m" class="cell-actions" (click)="$event.stopPropagation()">
+            @if (m.status === 'pending') {
+              <button
+                *appCan="'members.approve'"
+                mat-icon-button
+                class="quick-approve hide-xs"
+                matTooltip="Approve"
+                [attr.aria-label]="'Approve ' + m.name"
+                (click)="runAction('approve', m)"
+              >
+                <mat-icon>check_circle</mat-icon>
+              </button>
+            }
+            <button mat-icon-button [matMenuTriggerFor]="rowMenu" [attr.aria-label]="'Actions for ' + m.name">
+              <mat-icon>more_vert</mat-icon>
+            </button>
+            <mat-menu #rowMenu="matMenu" xPosition="before">
+              @for (action of availableActions(m); track action) {
+                @if (action === 'delete') {
+                  <mat-divider *appCan="actionMeta[action].permission" />
+                }
+                <button
+                  *appCan="actionMeta[action].permission"
+                  mat-menu-item
+                  [class.menu-danger]="actionMeta[action].danger"
+                  (click)="runAction(action, m)"
+                >
+                  <mat-icon>{{ actionMeta[action].icon }}</mat-icon>
+                  <span>{{ actionMeta[action].label }}</span>
+                </button>
+              }
+            </mat-menu>
+          </td>
+        </ng-container>
+
+        <tr mat-header-row *matHeaderRowDef="columns()"></tr>
+        <tr
+          mat-row
+          *matRowDef="let m; columns: columns()"
+          class="clickable-row"
+          tabindex="0"
+          (click)="open(m)"
+          (keydown.enter)="open(m)"
+        ></tr>
+      </table>
+    </div>
+
+    <mat-paginator
+      class="app-paginator"
+      [length]="total()"
+      [pageIndex]="page() - 1"
+      [pageSize]="pageSize()"
+      [pageSizeOptions]="pageSizes"
+      (page)="onPage($event)"
+      aria-label="Select page of members"
+    />
+  }
+</section>

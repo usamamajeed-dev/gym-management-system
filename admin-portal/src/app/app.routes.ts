@@ -23,6 +23,11 @@ export const routes: Routes = [
         title: 'Dashboard · Gym Admin',
         loadComponent: () => import('./features/dashboard/dashboard.component').then((m) => m.DashboardComponent),
       },
+      {
+        path: 'members',
+        canActivate: [permissionGuard('members.view')],
+        loadChildren: () => import('./features/members/members.routes').then((m) => m.MEMBERS_ROUTES),
+      },
       { path: '', pathMatch: 'full', redirectTo: 'dashboard' },
     ],
   },

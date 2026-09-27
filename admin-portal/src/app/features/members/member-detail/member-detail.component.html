@@ -1,0 +1,189 @@
+@if (member(); as m) {
+  <app-page-header
+    [title]="m.name"
+    [subtitle]="'Registered ' + formatDate(m.created_at) + ' · ' + timeAgo(m.created_at)"
+    backLink="/members"
+    backLabel="All members"
+  >
+    @for (action of primaryActions(); track action) {
+      @switch (action) {
+        @case ('approve') {
+          <button *appCan="'members.approve'" mat-flat-button class="btn-success" (click)="run('approve')">
+            <mat-icon>check_circle</mat-icon>
+            Approve
+          </button>
+        }
+        @case ('reject') {
+          <button *appCan="'members.approve'" mat-stroked-button class="btn-outline-danger" (click)="run('reject')">
+            <mat-icon>cancel</mat-icon>
+            Reject
+          </button>
+        }
+        @case ('activate') {
+          <button *appCan="'members.approve'" mat-flat-button (click)="run('activate')">
+            <mat-icon>play_circle</mat-icon>
+            Activate
+          </button>
+        }
+        @case ('deactivate') {
+          <button *appCan="'members.approve'" mat-stroked-button (click)="run('deactivate')">
+            <mat-icon>pause_circle</mat-icon>
+            Deactivate
+          </button>
+        }
+      }
+    }
+    @if (canEdit()) {
+      <button *appCan="'members.manage'" mat-stroked-button (click)="run('edit')">
+        <mat-icon>edit</mat-icon>
+        Edit
+      </button>
+    }
+    <button
+      *appCan="'members.manage'"
+      mat-icon-button
+      [matMenuTriggerFor]="moreMenu"
+      aria-label="More actions"
+      class="more-btn"
+    >
+      <mat-icon>more_horiz</mat-icon>
+    </button>
+    <mat-menu #moreMenu="matMenu" xPosition="before">
+      <button mat-menu-item class="menu-danger" (click)="run('delete')">
+        <mat-icon>delete</mat-icon>
+        <span>Delete member</span>
+      </button>
+    </mat-menu>
+  </app-page-header>
+
+  @if (m.status === 'rejected') {
+    <div class="banner banner--danger">
+      <mat-icon class="icon-filled">error</mat-icon>
+      <div>
+        <strong>Registration rejected</strong>
+        <p>{{ m.rejection_reason }}</p>
+      </div>
+    </div>
+  } @else if (m.status === 'pending') {
+    <div class="banner banner--warning">
+      <mat-icon class="icon-filled">hourglass_top</mat-icon>
+      <div>
+        <strong>Waiting for approval</strong>
+        <p>This member can't log in to the app until you approve the registration.</p>
+      </div>
+    </div>
+  } @else if (!m.is_active) {
+    <div class="banner banner--neutral">
+      <mat-icon class="icon-filled">pause_circle</mat-icon>
+      <div>
+        <strong>Membership deactivated</strong>
+        <p>The member is signed out and can't log in until you activate them again.</p>
+      </div>
+    </div>
+  }
+
+  <div class="layout">
+    <section class="app-card profile">
+      <div class="profile__cover"></div>
+      <div class="profile__head">
+        <span class="avatar avatar--lg">{{ initials(m.name) }}</span>
+        <div class="profile__id">
+          <h2>{{ m.name }}</h2>
+          <p>{{ m.email }}</p>
+          <div class="chips">
+            <app-status-chip [status]="m.status" />
+            @if (m.status === 'approved') {
+              <app-status-chip [status]="m.is_active ? 'active' : 'inactive'" />
+            }
+          </div>
+        </div>
+      </div>
+
+      <div class="membership">
+        <div>
+          <span class="membership__label">Membership number</span>
+          <span class="membership__value text-mono">{{ m.membership_number ?? 'Assigned on approval' }}</span>
+        </div>
+        <div>
+          <span class="membership__label">Member since</span>
+          <span class="membership__value">{{ m.approved_at ? formatDate(m.approved_at) : '—' }}</span>
+        </div>
+      </div>
+
+      <dl class="details">
+        @for (row of details(); track row.label) {
+          <div class="details__row">
+            <dt>
+              <mat-icon>{{ row.icon }}</mat-icon
+              >{{ row.label }}
+            </dt>
+            <dd [class.text-faint]="!row.value">{{ row.value || 'Not provided' }}</dd>
+          </div>
+        }
+      </dl>
+    </section>
+
+    <aside class="side">
+      <section class="app-card">
+        <header class="app-card__header"><h3>Activity</h3></header>
+        <ol class="timeline">
+          @for (step of timeline(); track step.title) {
+            <li class="timeline__step" [attr.data-tone]="step.tone">
+              <span class="timeline__icon"
+                ><mat-icon>{{ step.icon }}</mat-icon></span
+              >
+              <div class="timeline__body">
+                <strong>{{ step.title }}</strong>
+                <span>{{ step.detail }}</span>
+                @if (step.note) {
+                  <p class="timeline__note">“{{ step.note }}”</p>
+                }
+              </div>
+            </li>
+          }
+        </ol>
+      </section>
+
+      <section class="app-card">
+        <header class="app-card__header"><h3>Account</h3></header>
+        <div class="app-card__body stats">
+          <div>
+            <span>Member ID</span>
+            <strong>#{{ m.id }}</strong>
+          </div>
+          <div>
+            <span>App access</span>
+            <strong>{{ m.status === 'approved' && m.is_active ? 'Allowed' : 'Blocked' }}</strong>
+          </div>
+          <div>
+            <span>Last login</span>
+            <strong>{{ m.last_login_at ? timeAgo(m.last_login_at) : 'Never' }}</strong>
+          </div>
+        </div>
+      </section>
+    </aside>
+  </div>
+} @else if (error(); as err) {
+  <app-page-header title="Member" backLink="/members" backLabel="All members" />
+  <section class="app-card">
+    <app-empty-state
+      [icon]="err.notFound ? 'person_off' : 'cloud_off'"
+      tone="danger"
+      [title]="err.notFound ? 'Member not found' : 'Couldn\'t load this member'"
+      [message]="err.notFound ? 'The member may have been deleted.' : err.message"
+    >
+      @if (!err.notFound) {
+        <button mat-flat-button (click)="reload()">Try again</button>
+      }
+    </app-empty-state>
+  </section>
+} @else {
+  <div class="loading-layout" aria-busy="true" aria-label="Loading member">
+    <span class="skeleton" style="width: 90px; height: 14px"></span>
+    <span class="skeleton" style="width: 260px; height: 28px; margin: 10px 0 28px"></span>
+    <div class="layout">
+      <span class="skeleton" style="height: 420px; border-radius: 14px"></span>
+      <span class="skeleton" style="height: 300px; border-radius: 14px"></span>
+    </div>
+  </div>
+}
