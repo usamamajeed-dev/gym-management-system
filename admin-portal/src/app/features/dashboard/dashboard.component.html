@@ -1,0 +1,294 @@
+<app-page-header [title]="greeting()" subtitle="Here's what's happening at your gym today.">
+  <button mat-stroked-button (click)="load()" [disabled]="loading()">
+    <mat-icon>refresh</mat-icon>
+    Refresh
+  </button>
+  @if (data()?.members?.pending) {
+    <a *appCan="'members.approve'" mat-flat-button routerLink="/members" [queryParams]="{ status: 'pending' }">
+      <mat-icon>how_to_reg</mat-icon>
+      Review {{ data()?.members?.pending }} pending
+    </a>
+  }
+</app-page-header>
+
+@if (error() && !data()) {
+  <section class="app-card">
+    <app-empty-state icon="cloud_off" tone="danger" title="Couldn't load the dashboard" [message]="error() ?? ''">
+      <button mat-flat-button (click)="load()">Try again</button>
+    </app-empty-state>
+  </section>
+} @else if (!data()) {
+  <div class="kpis">
+    @for (i of skeletonCards; track i) {
+      <div class="app-card kpi kpi--skeleton">
+        <span class="skeleton" style="width: 40px; height: 40px; border-radius: 12px"></span>
+        <span class="skeleton" style="width: 60%; height: 26px; margin-top: 18px"></span>
+        <span class="skeleton" style="width: 80%; height: 12px; margin-top: 10px"></span>
+      </div>
+    }
+  </div>
+  <div class="grid">
+    <span class="skeleton span-8" style="height: 320px; border-radius: 14px"></span>
+    <span class="skeleton span-4" style="height: 320px; border-radius: 14px"></span>
+  </div>
+} @else {
+  @let d = data()!;
+
+  <!-- KPI cards -->
+  <div class="kpis" [class.is-refreshing]="loading()">
+    @for (kpi of kpis(); track kpi.label) {
+      @if (kpi.link) {
+        <a
+          class="app-card kpi kpi--link"
+          [attr.data-tone]="kpi.tone"
+          [class.kpi--alert]="kpi.alert"
+          [routerLink]="kpi.link"
+          [queryParams]="kpi.queryParams"
+        >
+          <ng-container *ngTemplateOutlet="kpiBody; context: { $implicit: kpi }" />
+        </a>
+      } @else {
+        <div class="app-card kpi" [attr.data-tone]="kpi.tone">
+          <ng-container *ngTemplateOutlet="kpiBody; context: { $implicit: kpi }" />
+        </div>
+      }
+    }
+  </div>
+
+  <ng-template #kpiBody let-kpi>
+    <div class="kpi__top">
+      <span class="kpi__icon"
+        ><mat-icon>{{ kpi.icon }}</mat-icon></span
+      >
+      @if (kpi.link) {
+        <mat-icon class="kpi__arrow">arrow_outward</mat-icon>
+      }
+    </div>
+    <strong class="kpi__value">{{ kpi.value }}</strong>
+    <span class="kpi__label">{{ kpi.label }}</span>
+    <span class="kpi__hint">{{ kpi.hint }}</span>
+  </ng-template>
+
+  <div class="grid">
+    <!-- Registrations chart -->
+    <section class="app-card span-8">
+      <header class="app-card__header">
+        <div>
+          <h2>Registrations</h2>
+          <span class="app-card__hint">Last 6 months · {{ chart().total }} total</span>
+        </div>
+      </header>
+      <div
+        class="chart"
+        role="img"
+        [attr.aria-label]="'Registrations for the last six months, ' + chart().total + ' in total'"
+      >
+        <div class="chart__grid">
+          @for (line of gridLines(); track $index) {
+            <div class="chart__line">
+              <span>{{ line }}</span>
+            </div>
+          }
+        </div>
+        <div class="chart__bars">
+          @for (bar of chart().bars; track bar.label) {
+            <div class="chart__col" [matTooltip]="bar.count + (bar.count === 1 ? ' registration' : ' registrations')">
+              <div class="chart__bar-wrap">
+                <span class="chart__value">{{ bar.count }}</span>
+                <div class="chart__bar" [class.chart__bar--current]="bar.current" [style.height.%]="bar.height"></div>
+              </div>
+              <span class="chart__label" [class.text-strong]="bar.current">{{ bar.label }}</span>
+            </div>
+          }
+        </div>
+      </div>
+    </section>
+
+    <!-- Gym status -->
+    <section class="app-card span-4 gym" [class.gym--open]="d.gym.is_open_now">
+      <header class="app-card__header">
+        <h2>Gym status</h2>
+        <app-status-chip
+          [status]="d.gym.is_open_now ? 'open' : 'closed'"
+          [label]="d.gym.is_open_now ? 'Open now' : 'Closed now'"
+        />
+      </header>
+      <div class="app-card__body">
+        <div class="gym__hours">
+          <mat-icon class="icon-filled">{{ d.gym.is_open_now ? 'door_open' : 'door_front' }}</mat-icon>
+          <div>
+            <span class="gym__today">Today{{ d.gym.today_timing ? ' · ' + d.gym.today_timing.day_name : '' }}</span>
+            @if (d.gym.today_timing && !d.gym.today_timing.is_closed) {
+              <strong>{{ d.gym.today_timing.opens_at }} – {{ d.gym.today_timing.closes_at }}</strong>
+            } @else {
+              <strong>Closed all day</strong>
+            }
+          </div>
+        </div>
+        <p class="gym__tz"><mat-icon>public</mat-icon>Times in {{ d.gym.timezone }}</p>
+        <a *appCan="'timings.manage'" mat-stroked-button routerLink="/gym-timings" class="gym__link">
+          <mat-icon>schedule</mat-icon>
+          Manage timings
+        </a>
+      </div>
+    </section>
+
+    <!-- Pending approvals -->
+    <section class="app-card span-8">
+      <header class="app-card__header">
+        <div>
+          <h2>Pending approvals</h2>
+          <span class="app-card__hint">Oldest first, so nobody waits too long</span>
+        </div>
+        <a mat-button routerLink="/members" [queryParams]="{ status: 'pending' }">View all</a>
+      </header>
+      @if (d.pending_members.length === 0) {
+        <app-empty-state
+          compact
+          icon="task_alt"
+          title="No pending registrations"
+          message="New sign-ups from the member app will show up here."
+        />
+      } @else {
+        <ul class="list">
+          @for (m of d.pending_members; track m.id) {
+            <li class="list__item">
+              <a class="person" [routerLink]="['/members', m.id]">
+                <span class="avatar">{{ initials(m.name) }}</span>
+                <span class="person__text">
+                  <span class="person__name">{{ m.name }}</span>
+                  <span class="person__meta">{{ m.email }}</span>
+                </span>
+              </a>
+              <span class="list__meta hide-xs">{{ timeAgo(m.created_at) }}</span>
+              <span class="list__actions" *appCan="'members.approve'">
+                <button
+                  mat-icon-button
+                  class="approve-btn"
+                  matTooltip="Approve"
+                  [attr.aria-label]="'Approve ' + m.name"
+                  (click)="approve(m)"
+                >
+                  <mat-icon>check_circle</mat-icon>
+                </button>
+                <button
+                  mat-icon-button
+                  class="reject-btn"
+                  matTooltip="Reject"
+                  [attr.aria-label]="'Reject ' + m.name"
+                  (click)="reject(m)"
+                >
+                  <mat-icon>cancel</mat-icon>
+                </button>
+              </span>
+            </li>
+          }
+        </ul>
+      }
+    </section>
+
+    <!-- Upcoming events -->
+    <section class="app-card span-4">
+      <header class="app-card__header">
+        <h2>Upcoming events</h2>
+        <a mat-button routerLink="/events">All events</a>
+      </header>
+      @if (d.events.next.length === 0) {
+        <app-empty-state
+          compact
+          icon="event_busy"
+          title="No upcoming events"
+          message="Published events will appear here."
+        />
+      } @else {
+        <ul class="events">
+          @for (e of d.events.next; track e.id) {
+            <li class="event">
+              <span class="event__date" [style.--type-color]="e.event_type?.color ?? '#4f46e5'">
+                <strong>{{ day(e.starts_at) }}</strong>
+                <small>{{ month(e.starts_at) }}</small>
+              </span>
+              <span class="event__text">
+                <strong class="truncate">{{ e.title }}</strong>
+                <small
+                  >{{ formatTimeRange(e.starts_at, e.ends_at) }}
+                  @if (e.location) {
+                    · {{ e.location }}
+                  }
+                </small>
+              </span>
+              @if (e.event_type) {
+                <span class="type-badge hide-xs" [style.--type-color]="e.event_type.color">{{
+                  e.event_type.title
+                }}</span>
+              }
+            </li>
+          }
+        </ul>
+      }
+    </section>
+
+    <!-- Latest content -->
+    <section class="app-card span-8">
+      <header class="app-card__header">
+        <div>
+          <h2>Latest news & policies</h2>
+          <span class="app-card__hint">{{ d.contents.drafts }} drafts · {{ d.contents.archived }} archived</span>
+        </div>
+        <a mat-button routerLink="/news">Manage</a>
+      </header>
+      @if (d.contents.latest.length === 0) {
+        <app-empty-state
+          compact
+          icon="article"
+          title="Nothing published yet"
+          message="News items and policies you create will appear here."
+        />
+      } @else {
+        <ul class="list">
+          @for (c of d.contents.latest; track c.id) {
+            <li class="list__item">
+              <span class="content-icon" [attr.data-type]="c.type">
+                <mat-icon>{{ c.type === 'news' ? 'newspaper' : 'policy' }}</mat-icon>
+              </span>
+              <span class="content-text">
+                <strong class="truncate">{{ c.title }}</strong>
+                <small>{{ c.published_at ? 'Published ' + formatDate(c.published_at) : 'Not published yet' }}</small>
+              </span>
+              <span class="list__chips">
+                <app-status-chip class="hide-xs" [status]="c.type" />
+                <app-status-chip [status]="c.status" />
+              </span>
+            </li>
+          }
+        </ul>
+      }
+    </section>
+
+    <!-- Recently joined -->
+    <section class="app-card span-4">
+      <header class="app-card__header">
+        <h2>Recent registrations</h2>
+        <a mat-button routerLink="/members">Members</a>
+      </header>
+      @if (d.recent_members.length === 0) {
+        <app-empty-state compact icon="group" title="No members yet" />
+      } @else {
+        <ul class="list list--compact">
+          @for (m of d.recent_members; track m.id) {
+            <li class="list__item">
+              <a class="person" [routerLink]="['/members', m.id]">
+                <span class="avatar">{{ initials(m.name) }}</span>
+                <span class="person__text">
+                  <span class="person__name">{{ m.name }}</span>
+                  <span class="person__meta">{{ timeAgo(m.created_at) }}</span>
+                </span>
+              </a>
+              <app-status-chip [status]="m.status" />
+            </li>
+          }
+        </ul>
+      }
+    </section>
+  </div>
+}

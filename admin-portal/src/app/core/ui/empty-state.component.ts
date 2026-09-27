@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, input } from '@angular/core';
+import { booleanAttribute, ChangeDetectionStrategy, Component, input } from '@angular/core';
 import { MatIconModule } from '@angular/material/icon';
 
 /** Friendly placeholder for empty lists and errors, with optional projected actions. */
@@ -73,6 +73,6 @@ export class EmptyStateComponent {
   readonly icon = input('inbox');
   readonly title = input.required<string>();
   readonly message = input<string>();
-  readonly compact = input(false);
+  readonly compact = input(false, { transform: booleanAttribute });
   readonly tone = input<'primary' | 'danger'>('primary');
 }
