@@ -4,6 +4,7 @@ import { authGuard } from './core/auth/auth.guard';
 import { guestGuard } from './core/auth/guest.guard';
 import { permissionGuard } from './core/auth/permission.guard';
 import { ShellComponent } from './core/layout/shell.component';
+import { unsavedChangesGuard } from './core/utils/unsaved-changes.guard';
 
 export const routes: Routes = [
   {
@@ -27,6 +28,13 @@ export const routes: Routes = [
         path: 'members',
         canActivate: [permissionGuard('members.view')],
         loadChildren: () => import('./features/members/members.routes').then((m) => m.MEMBERS_ROUTES),
+      },
+      {
+        path: 'gym-timings',
+        canActivate: [permissionGuard('timings.manage')],
+        canDeactivate: [unsavedChangesGuard],
+        title: 'Gym Timings · Gym Admin',
+        loadComponent: () => import('./features/gym-timings/gym-timings.component').then((m) => m.GymTimingsComponent),
       },
       { path: '', pathMatch: 'full', redirectTo: 'dashboard' },
     ],

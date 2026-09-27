@@ -1,0 +1,157 @@
+<app-page-header title="Gym Timings" subtitle="Set the weekly opening hours members see in the app.">
+  <button
+    mat-stroked-button
+    (click)="copyMonday()"
+    [disabled]="loading()"
+    matTooltip="Copy Monday's hours to Tuesday – Friday"
+  >
+    <mat-icon>content_copy</mat-icon>
+    Copy Monday to weekdays
+  </button>
+  <button mat-stroked-button (click)="load()" [disabled]="loading() || saving()">
+    <mat-icon>restart_alt</mat-icon>
+    Reset
+  </button>
+  <button mat-flat-button (click)="save()" [disabled]="!canSave()">
+    @if (saving()) {
+      <mat-progress-spinner mode="indeterminate" diameter="18" strokeWidth="2.5" class="btn-spinner" />
+    } @else {
+      <mat-icon>save</mat-icon>
+    }
+    Save changes
+  </button>
+</app-page-header>
+
+@if (loadError()) {
+  <section class="app-card">
+    <app-empty-state
+      icon="cloud_off"
+      tone="danger"
+      title="Couldn't load the opening hours"
+      [message]="loadError() ?? ''"
+    >
+      <button mat-flat-button (click)="load()">Try again</button>
+    </app-empty-state>
+  </section>
+} @else {
+  <div class="layout">
+    <section class="app-card week">
+      <header class="app-card__header">
+        <div>
+          <h2>Weekly schedule</h2>
+          <span class="app-card__hint">Times are in {{ timezone() || '…' }}</span>
+        </div>
+        @if (!loading()) {
+          <app-status-chip
+            [status]="isOpenNow() ? 'open' : 'closed'"
+            [label]="isOpenNow() ? 'Open now' : 'Closed now'"
+          />
+        }
+      </header>
+
+      @if (loading()) {
+        <div class="rows">
+          @for (i of [1, 2, 3, 4, 5, 6, 7]; track i) {
+            <div class="row"><span class="skeleton" style="height: 44px; width: 100%"></span></div>
+          }
+        </div>
+      } @else {
+        <form [formGroup]="form" class="rows" (ngSubmit)="save()">
+          <div formArrayName="timings">
+            @for (row of rows.controls; track row.controls.day_of_week.value; let i = $index) {
+              <div
+                class="row"
+                [formGroupName]="i"
+                [class.row--closed]="row.controls.is_closed.value"
+                [class.row--today]="row.controls.day_of_week.value === todayDay"
+                [class.row--invalid]="!!rowError(row)"
+              >
+                <div class="row__day">
+                  <strong>{{ row.controls.day_name.value }}</strong>
+                  @if (row.controls.day_of_week.value === todayDay) {
+                    <span class="today-pill">Today</span>
+                  }
+                </div>
+
+                <mat-slide-toggle
+                  class="row__toggle"
+                  [checked]="!row.controls.is_closed.value"
+                  (change)="row.controls.is_closed.setValue(!$event.checked); row.markAsDirty(); row.markAsTouched()"
+                  [attr.aria-label]="row.controls.day_name.value + ' open'"
+                >
+                  {{ row.controls.is_closed.value ? 'Closed' : 'Open' }}
+                </mat-slide-toggle>
+
+                <div class="row__times">
+                  <mat-form-field class="compact-field time-field">
+                    <input
+                      matInput
+                      type="time"
+                      formControlName="opens_at"
+                      [attr.aria-label]="row.controls.day_name.value + ' opens at'"
+                    />
+                  </mat-form-field>
+                  <span class="row__sep">to</span>
+                  <mat-form-field class="compact-field time-field">
+                    <input
+                      matInput
+                      type="time"
+                      formControlName="closes_at"
+                      [attr.aria-label]="row.controls.day_name.value + ' closes at'"
+                    />
+                  </mat-form-field>
+                </div>
+
+                <span class="row__hours">{{ hours(row) }}</span>
+
+                @if (rowError(row); as message) {
+                  <p class="row__error"><mat-icon>error</mat-icon>{{ message }}</p>
+                }
+              </div>
+            }
+          </div>
+        </form>
+      }
+    </section>
+
+    <aside class="side">
+      <section class="app-card">
+        <header class="app-card__header">
+          <div>
+            <h2>Week at a glance</h2>
+            <span class="app-card__hint">{{ weeklyHours() }} hours open per week</span>
+          </div>
+        </header>
+        <div class="glance">
+          <div class="glance__scale"><span>00</span><span>06</span><span>12</span><span>18</span><span>24</span></div>
+          @for (p of preview(); track p.day) {
+            <div class="glance__row" [class.glance__row--today]="p.today">
+              <span class="glance__day">{{ p.day }}</span>
+              <div class="glance__track" [matTooltip]="p.label">
+                @if (p.open) {
+                  <span class="glance__bar" [style.left.%]="p.left" [style.width.%]="p.width"></span>
+                } @else {
+                  <span class="glance__closed">Closed</span>
+                }
+              </div>
+            </div>
+          }
+        </div>
+      </section>
+
+      <section class="app-card tips">
+        <div class="tips__icon"><mat-icon>smartphone</mat-icon></div>
+        <div>
+          <strong>Shown in the member app</strong>
+          <p>
+            Members see these hours on their dashboard and the timings screen, with an open/closed badge based on the
+            current time.
+          </p>
+          @if (lastUpdated()) {
+            <p class="text-faint">Last updated {{ lastUpdated()?.slice(0, 10) }}</p>
+          }
+        </div>
+      </section>
+    </aside>
+  </div>
+}

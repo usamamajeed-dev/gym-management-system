@@ -1,0 +1,250 @@
+.layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1.7fr) minmax(280px, 1fr);
+  align-items: start;
+  gap: 20px;
+}
+
+.side {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+// ------------------------------------------------------------ rows
+
+.rows {
+  padding: 0 12px 12px;
+}
+
+.row {
+  display: grid;
+  grid-template-columns: 118px 104px minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 12px;
+  border-radius: 12px;
+  transition: background-color 140ms ease;
+
+  & + & {
+    margin-top: 2px;
+  }
+
+  &:hover {
+    background: var(--app-surface-muted);
+  }
+
+  &--today {
+    background: var(--app-primary-soft);
+
+    &:hover {
+      background: #e4e8ff;
+    }
+  }
+
+  &--closed .row__day strong,
+  &--closed .row__hours {
+    color: var(--app-text-faint);
+  }
+
+  &--invalid {
+    background: var(--app-danger-soft);
+  }
+}
+
+.row__day {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+
+  strong {
+    font-size: 14.5px;
+    font-weight: 600;
+  }
+}
+
+.today-pill {
+  padding: 2px 8px;
+  border-radius: 999px;
+  background: var(--app-primary);
+  color: #fff;
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.row__toggle {
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.row__times {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.time-field {
+  flex: 1;
+  min-width: 116px;
+
+  ::ng-deep .mat-mdc-form-field-subscript-wrapper {
+    display: none;
+  }
+}
+
+.row__sep {
+  color: var(--app-text-faint);
+  font-size: 13px;
+}
+
+.row__hours {
+  color: var(--app-text-secondary);
+  font-size: 13px;
+  font-weight: 600;
+  text-align: right;
+}
+
+.row__error {
+  display: flex;
+  grid-column: 1 / -1;
+  align-items: center;
+  gap: 6px;
+  color: var(--app-danger);
+  font-size: 12.5px;
+  font-weight: 500;
+
+  mat-icon {
+    width: 16px;
+    height: 16px;
+    font-size: 16px;
+  }
+}
+
+// ------------------------------------------------------------ week at a glance
+
+.glance {
+  padding: 0 20px 20px;
+}
+
+.glance__scale {
+  display: flex;
+  justify-content: space-between;
+  margin: 0 0 8px 44px;
+  color: var(--app-text-faint);
+  font-size: 11px;
+}
+
+.glance__row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  height: 30px;
+
+  &--today .glance__day {
+    color: var(--app-primary);
+    font-weight: 700;
+  }
+}
+
+.glance__day {
+  width: 34px;
+  color: var(--app-text-muted);
+  font-size: 12.5px;
+  font-weight: 600;
+}
+
+.glance__track {
+  position: relative;
+  flex: 1;
+  height: 14px;
+  border-radius: 999px;
+  background: repeating-linear-gradient(90deg, var(--app-neutral-soft) 0 24.8%, #e2e8f0 24.8% 25%);
+}
+
+.glance__bar {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  border-radius: 999px;
+  background: linear-gradient(90deg, #6366f1, #4f46e5);
+  transition:
+    left 200ms ease,
+    width 200ms ease;
+}
+
+.glance__row--today .glance__bar {
+  background: linear-gradient(90deg, #fb923c, #f97316);
+}
+
+.glance__closed {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  color: var(--app-text-faint);
+  font-size: 10.5px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+// ------------------------------------------------------------ tips
+
+.tips {
+  display: flex;
+  gap: 14px;
+  padding: 18px 20px;
+
+  strong {
+    font-size: 14px;
+  }
+
+  p {
+    margin-top: 4px;
+    color: var(--app-text-muted);
+    font-size: 13px;
+  }
+}
+
+.tips__icon {
+  display: grid;
+  flex: none;
+  place-items: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 12px;
+  background: var(--app-accent-soft);
+  color: var(--app-accent-strong);
+}
+
+// ------------------------------------------------------------ responsive
+
+@media (max-width: 1199.98px) {
+  .layout {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 719.98px) {
+  .row {
+    grid-template-columns: 1fr auto;
+    row-gap: 8px;
+  }
+
+  .row__times {
+    grid-column: 1 / -1;
+  }
+
+  .row__toggle {
+    justify-self: end;
+    padding-right: 6px;
+  }
+
+  .time-field {
+    min-width: 0;
+  }
+
+  .row__hours {
+    display: none;
+  }
+}
