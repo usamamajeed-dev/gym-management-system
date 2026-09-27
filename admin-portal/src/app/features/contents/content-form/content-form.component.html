@@ -1,0 +1,183 @@
+<app-page-header
+  [title]="isEdit() ? 'Edit ' + labels().singular : labels().newLabel"
+  [subtitle]="
+    isEdit() ? (content()?.title ?? '') : 'Write it, preview it, then save as a draft or publish it straight away.'
+  "
+  [backLink]="type() === 'news' ? '/news' : '/policies'"
+  [backLabel]="'All ' + labels().plural.toLowerCase()"
+>
+  <button mat-stroked-button (click)="preview()" [disabled]="loading() || !!loadError()">
+    <mat-icon>smartphone</mat-icon>
+    Preview
+  </button>
+  <button mat-button (click)="cancel()">Cancel</button>
+  <button mat-flat-button (click)="save()" [disabled]="saving() || loading() || !!loadError()">
+    @if (saving()) {
+      <mat-progress-spinner mode="indeterminate" diameter="18" strokeWidth="2.5" class="btn-spinner" />
+    } @else {
+      <mat-icon>{{ isEdit() ? 'save' : value().saveAs === 'published' ? 'publish' : 'save' }}</mat-icon>
+    }
+    {{ isEdit() ? 'Save changes' : value().saveAs === 'published' ? 'Publish' : 'Save draft' }}
+  </button>
+</app-page-header>
+
+@if (loadError()) {
+  <section class="app-card">
+    <app-empty-state
+      icon="article"
+      tone="danger"
+      [title]="'Couldn\'t open this ' + labels().singular"
+      [message]="loadError() ?? ''"
+    >
+      <button mat-flat-button (click)="cancel()">Back</button>
+    </app-empty-state>
+  </section>
+} @else if (loading()) {
+  <div class="layout">
+    <span class="skeleton" style="height: 560px; border-radius: 14px"></span>
+    <span class="skeleton" style="height: 320px; border-radius: 14px"></span>
+  </div>
+} @else {
+  <form class="layout" [formGroup]="form" (ngSubmit)="save()" novalidate>
+    <section class="app-card main">
+      <div class="app-card__body main__body">
+        <mat-form-field class="full-width title-field">
+          <mat-label>Title</mat-label>
+          <input
+            matInput
+            formControlName="title"
+            maxlength="200"
+            [placeholder]="type() === 'news' ? 'e.g. New squat racks installed' : 'e.g. Locker room rules'"
+          />
+          <mat-hint align="end">{{ value().title?.length ?? 0 }} / 200</mat-hint>
+          <mat-error><app-field-error [control]="form.controls.title" label="Title" /></mat-error>
+        </mat-form-field>
+
+        <mat-form-field class="full-width">
+          <mat-label>Excerpt</mat-label>
+          <textarea
+            matInput
+            rows="2"
+            formControlName="excerpt"
+            maxlength="500"
+            placeholder="Optional short summary shown in lists"
+          ></textarea>
+          <mat-hint>Leave empty to use the start of the body.</mat-hint>
+          <mat-hint align="end">{{ value().excerpt?.length ?? 0 }} / 500</mat-hint>
+          <mat-error><app-field-error [control]="form.controls.excerpt" label="Excerpt" /></mat-error>
+        </mat-form-field>
+
+        <span class="field-label" id="content-body-label">Body</span>
+        <div
+          class="editor"
+          role="group"
+          aria-labelledby="content-body-label"
+          [class.editor--invalid]="form.controls.body.invalid && form.controls.body.touched"
+        >
+          <quill-editor
+            formControlName="body"
+            format="html"
+            [modules]="modules"
+            [formats]="formats"
+            [placeholder]="'Write the ' + labels().singular + '…'"
+            [styles]="{ minHeight: '320px' }"
+            (onEditorCreated)="onEditorCreated($event)"
+          />
+        </div>
+        @if (form.controls.body.invalid && form.controls.body.touched) {
+          <p class="form-error">
+            <mat-icon>error</mat-icon><app-field-error [control]="form.controls.body" label="Body" />
+          </p>
+        }
+      </div>
+    </section>
+
+    <aside class="side">
+      @if (isEdit()) {
+        @if (content(); as c) {
+          <section class="app-card">
+            <header class="app-card__header">
+              <h2>Status</h2>
+              <app-status-chip [status]="c.status" />
+            </header>
+            <div class="app-card__body">
+              <dl class="facts">
+                <div>
+                  <dt>Published</dt>
+                  <dd>{{ c.published_at ? formatDate(c.published_at) : 'Not yet' }}</dd>
+                </div>
+                @if (c.archived_at) {
+                  <div>
+                    <dt>Archived</dt>
+                    <dd>{{ formatDate(c.archived_at) }}</dd>
+                  </div>
+                }
+                <div>
+                  <dt>Last updated</dt>
+                  <dd>{{ formatDate(c.updated_at) }}</dd>
+                </div>
+              </dl>
+              @if (c.status === 'published') {
+                <button
+                  mat-stroked-button
+                  type="button"
+                  class="full-width"
+                  (click)="transition('archive')"
+                  [disabled]="transitioning()"
+                >
+                  <mat-icon>inventory_2</mat-icon>
+                  Archive
+                </button>
+              } @else {
+                <button
+                  mat-flat-button
+                  type="button"
+                  class="full-width"
+                  (click)="transition('publish')"
+                  [disabled]="transitioning()"
+                >
+                  <mat-icon>publish</mat-icon>
+                  {{ c.status === 'archived' ? 'Re-publish' : 'Publish now' }}
+                </button>
+              }
+            </div>
+          </section>
+        }
+      } @else {
+        <section class="app-card">
+          <header class="app-card__header"><h2>Save as</h2></header>
+          <div class="app-card__body">
+            <mat-button-toggle-group
+              formControlName="saveAs"
+              class="save-as"
+              hideSingleSelectionIndicator
+              aria-label="Save as"
+            >
+              <mat-button-toggle value="draft"><mat-icon>edit_note</mat-icon> Draft</mat-button-toggle>
+              <mat-button-toggle value="published"><mat-icon>publish</mat-icon> Publish now</mat-button-toggle>
+            </mat-button-toggle-group>
+            <p class="hint">
+              {{
+                value().saveAs === 'published'
+                  ? 'Members see it in the app as soon as you save.'
+                  : "Only admins can see drafts. Publish when you're ready."
+              }}
+            </p>
+          </div>
+        </section>
+      }
+
+      <section class="app-card">
+        <header class="app-card__header">
+          <h2>Cover image <small class="text-faint">optional</small></h2>
+        </header>
+        <div class="app-card__body">
+          <app-image-upload [imageUrl]="content()?.image_url ?? null" (changed)="onImage($event)" />
+          @if (imageError()) {
+            <p class="form-error"><mat-icon>error</mat-icon>{{ imageError() }}</p>
+          }
+        </div>
+      </section>
+    </aside>
+  </form>
+}

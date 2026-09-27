@@ -53,13 +53,17 @@
               }
             ],
             "styles": [
+              "node_modules/quill/dist/quill.snow.css",
               "src/styles.scss"
             ],
             "stylePreprocessorOptions": {
               "includePaths": [
                 "src"
               ]
-            }
+            },
+            "allowedCommonJsDependencies": [
+              "quill-delta"
+            ]
           },
           "configurations": {
             "production": {

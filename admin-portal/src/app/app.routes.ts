@@ -48,6 +48,20 @@ export const routes: Routes = [
         loadComponent: () =>
           import('./features/event-types/event-type-list.component').then((m) => m.EventTypeListComponent),
       },
+      {
+        path: 'news',
+        data: { type: 'news' },
+        title: 'News · Gym Admin',
+        canActivate: [permissionGuard('contents.manage')],
+        loadChildren: () => import('./features/contents/contents.routes').then((m) => m.CONTENTS_ROUTES),
+      },
+      {
+        path: 'policies',
+        data: { type: 'policy' },
+        title: 'Policies · Gym Admin',
+        canActivate: [permissionGuard('contents.manage')],
+        loadChildren: () => import('./features/contents/contents.routes').then((m) => m.CONTENTS_ROUTES),
+      },
       { path: '', pathMatch: 'full', redirectTo: 'dashboard' },
     ],
   },

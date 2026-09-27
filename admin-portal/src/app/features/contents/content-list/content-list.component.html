@@ -1,0 +1,187 @@
+<app-page-header
+  [title]="labels().plural"
+  [subtitle]="
+    type() === 'news'
+      ? 'Share announcements and updates with your members.'
+      : 'Publish the rules and policies members agree to.'
+  "
+>
+  <a mat-flat-button routerLink="new">
+    <mat-icon>add</mat-icon>
+    {{ labels().newLabel }}
+  </a>
+</app-page-header>
+
+@if (type() === 'news') {
+  <div class="info-banner">
+    <mat-icon class="icon-filled">schedule</mat-icon>
+    <p>
+      News older than the current month is archived automatically every night. Members can still read it under “Older”.
+    </p>
+  </div>
+}
+
+<section class="app-card app-table-card">
+  <nav class="tabs" aria-label="Filter by status">
+    @for (tab of tabs; track tab.value) {
+      <a
+        class="tab"
+        [class.tab--active]="status() === tab.value"
+        [routerLink]="[]"
+        [queryParams]="statusLink(tab.value)"
+        queryParamsHandling="merge"
+      >
+        {{ tab.label }}
+      </a>
+    }
+  </nav>
+
+  <div class="filter-bar">
+    <mat-form-field class="filter-bar__search">
+      <mat-icon matPrefix>search</mat-icon>
+      <input
+        matInput
+        [formControl]="searchControl"
+        [placeholder]="'Search ' + labels().plural.toLowerCase()"
+        [attr.aria-label]="'Search ' + labels().plural"
+      />
+    </mat-form-field>
+    <span class="filter-bar__spacer"></span>
+    @if (result()) {
+      <span class="text-muted"
+        >{{ total() }} {{ total() === 1 ? labels().singular : type() === 'news' ? 'news items' : 'policies' }}</span
+      >
+    }
+  </div>
+
+  @if (error() && !result()) {
+    <app-empty-state
+      icon="cloud_off"
+      tone="danger"
+      [title]="'Couldn\'t load ' + labels().plural.toLowerCase()"
+      [message]="error() ?? ''"
+    >
+      <button mat-flat-button (click)="reload()">Try again</button>
+    </app-empty-state>
+  } @else if (loading() && !result()) {
+    <div class="skeleton-rows">
+      @for (i of [1, 2, 3, 4]; track i) {
+        <span class="skeleton" style="height: 56px"></span>
+      }
+    </div>
+  } @else if (rows().length === 0) {
+    <app-empty-state
+      [icon]="labels().icon"
+      [title]="
+        'No ' +
+        (status() ? status() + ' ' : '') +
+        (type() === 'news' ? 'news items' : 'policies') +
+        (searchControl.value ? ' match your search' : ' yet')
+      "
+      [message]="
+        type() === 'news'
+          ? 'Write an update and publish it to show it in the member app.'
+          : 'Add your gym rules so members can read them in the app.'
+      "
+    >
+      <a mat-flat-button routerLink="new"><mat-icon>add</mat-icon>{{ labels().newLabel }}</a>
+    </app-empty-state>
+  } @else {
+    <div class="app-table-scroll" [class.is-refreshing]="loading()">
+      <table
+        mat-table
+        class="app-table"
+        [dataSource]="rows()"
+        matSort
+        [matSortActive]="sortColumn()"
+        [matSortDirection]="sortDir()"
+        (matSortChange)="onSort($event)"
+      >
+        <ng-container matColumnDef="title">
+          <th mat-header-cell *matHeaderCellDef mat-sort-header>Title</th>
+          <td mat-cell *matCellDef="let c">
+            <div class="content-cell">
+              @if (c.image_url) {
+                <img class="thumb thumb--content" [src]="c.image_url" alt="" loading="lazy" />
+              } @else {
+                <span class="thumb thumb--content thumb--placeholder" [attr.data-type]="c.type">
+                  <mat-icon>{{ labels().icon }}</mat-icon>
+                </span>
+              }
+              <span class="content-cell__text">
+                <strong class="truncate">{{ c.title }}</strong>
+                <small class="truncate">{{ c.excerpt }}</small>
+                @if (columns().length === 2) {
+                  <span class="row-gap chips-mobile">
+                    <app-status-chip [status]="c.status" />
+                    <span class="text-faint">{{ c.published_at ? formatDate(c.published_at) : 'Not published' }}</span>
+                  </span>
+                }
+              </span>
+            </div>
+          </td>
+        </ng-container>
+
+        <ng-container matColumnDef="status">
+          <th mat-header-cell *matHeaderCellDef>Status</th>
+          <td mat-cell *matCellDef="let c"><app-status-chip [status]="c.status" /></td>
+        </ng-container>
+
+        <ng-container matColumnDef="published_at">
+          <th mat-header-cell *matHeaderCellDef mat-sort-header>Published</th>
+          <td mat-cell *matCellDef="let c" class="nowrap" [class.text-faint]="!c.published_at">
+            {{ c.published_at ? formatDate(c.published_at) : '—' }}
+          </td>
+        </ng-container>
+
+        <ng-container matColumnDef="archived_at">
+          <th mat-header-cell *matHeaderCellDef>Archived</th>
+          <td mat-cell *matCellDef="let c" class="nowrap" [class.text-faint]="!c.archived_at">
+            {{ c.archived_at ? formatDate(c.archived_at) : '—' }}
+          </td>
+        </ng-container>
+
+        <ng-container matColumnDef="actions">
+          <th mat-header-cell *matHeaderCellDef class="cell-actions">
+            <span class="cdk-visually-hidden">Actions</span>
+          </th>
+          <td mat-cell *matCellDef="let c" class="cell-actions" (click)="$event.stopPropagation()">
+            <button mat-icon-button [matMenuTriggerFor]="menu" [attr.aria-label]="'Actions for ' + c.title">
+              <mat-icon>more_vert</mat-icon>
+            </button>
+            <mat-menu #menu="matMenu" xPosition="before">
+              @for (action of contentActions(c); track action) {
+                @if (action === 'delete') {
+                  <mat-divider />
+                }
+                <button mat-menu-item [class.menu-danger]="action === 'delete'" (click)="run(action, c)">
+                  <mat-icon>{{ actionIcons[action] }}</mat-icon>
+                  <span>{{ actionLabel(action, c) }}</span>
+                </button>
+              }
+            </mat-menu>
+          </td>
+        </ng-container>
+
+        <tr mat-header-row *matHeaderRowDef="columns()"></tr>
+        <tr
+          mat-row
+          *matRowDef="let c; columns: columns()"
+          class="clickable-row"
+          tabindex="0"
+          (click)="run('edit', c)"
+          (keydown.enter)="run('edit', c)"
+        ></tr>
+      </table>
+    </div>
+
+    <mat-paginator
+      class="app-paginator"
+      [length]="total()"
+      [pageIndex]="page() - 1"
+      [pageSize]="pageSize()"
+      [pageSizeOptions]="pageSizes"
+      (page)="onPage($event)"
+    />
+  }
+</section>

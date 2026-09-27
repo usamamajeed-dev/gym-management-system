@@ -48,6 +48,12 @@ src/app/
 src/styles/     theme tokens and Material 3 theme
 ```
 
+## Rich-text editor (news & policies)
+
+News and policy bodies are written with **ngx-quill** (Quill 2) using a trimmed toolbar: headings (H2/H3), bold, italic, ordered and bullet lists, quotes and links. These are exactly the tags the API keeps after sanitising (`p, br, strong, em, ul, ol, li, a, h2, h3, blockquote`).
+
+The form saves Quill's **semantic HTML** (`getSemanticHTML()`), not its editor HTML: the editor marks bullet lists as `<ol><li data-list="bullet">`, and the API strips attributes, which would turn bullets into numbered lists. Quill 2.0.3 also writes spaces as `&nbsp;`; they are converted back to normal spaces before saving.
+
 ## Conventions
 
 - File names: `feature-name.component.ts`, `feature-name.service.ts`, `feature-name.model.ts`.
