@@ -296,6 +296,7 @@ export default function RegisterScreen() {
                 name="gender"
                 render={({ field: { onChange, value } }) => (
                   <SegmentedButtons
+                    theme={{ colors: { secondaryContainer: app.primarySoft, onSecondaryContainer: app.primary } }}
                     value={value ?? ''}
                     onValueChange={(v) => onChange(v === value ? undefined : v)}
                     style={styles.segments}
