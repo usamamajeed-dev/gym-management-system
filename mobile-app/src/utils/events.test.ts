@@ -1,5 +1,5 @@
 import { GymEvent } from '../api/types';
-import { formatTime } from './dates';
+import { formatClock, formatRange, formatTime } from './dates';
 import { groupEventsByDay, isFinished, monthDiff, monthTitle, shiftMonth } from './events';
 
 function event(id: number, starts_at: string, ends_at: string | null = null): GymEvent {
@@ -31,7 +31,7 @@ describe('groupEventsByDay', () => {
     expect(sections.map((s) => s.key)).toEqual(['2026-10-05', '2026-10-06']);
     expect(sections[0].title).toBe('Mon 5 Oct');
     expect(sections[1].data[0].id).toBe(2);
-    expect(formatTime(lateEvening.starts_at)).toBe('23:30');
+    expect(formatTime(lateEvening.starts_at)).toBe('11:30 PM');
   });
 
   it('keeps events of the same day together, earliest first', () => {
@@ -66,5 +66,19 @@ describe('month helpers', () => {
     expect(shiftMonth('2026-01', -1)).toBe('2025-12');
     expect(monthTitle('2026-10')).toBe('October 2026');
     expect(monthDiff('2026-11', '2027-01')).toBe(2);
+  });
+});
+
+describe('12-hour times', () => {
+  it('shows opening hours from the API on a 12-hour clock', () => {
+    expect(formatClock('00:00')).toBe('12:00 AM');
+    expect(formatClock('06:05')).toBe('6:05 AM');
+    expect(formatClock('12:00')).toBe('12:00 PM');
+    expect(formatClock('22:00')).toBe('10:00 PM');
+    expect(formatClock(null)).toBe('');
+  });
+
+  it('shows event ranges across days with the weekday', () => {
+    expect(formatRange('2026-10-10T23:00:00+05:00', '2026-10-11T01:00:00+05:00')).toBe('Sat 11:00 PM – Sun 1:00 AM');
   });
 });

@@ -32,8 +32,8 @@ describe('TimingRow', () => {
   it('shows the hours and highlights today', async () => {
     await renderWithProviders(<TimingRow timing={monday} isToday />);
 
-    expect(screen.getByText('06:00 – 22:00')).toBeTruthy();
+    expect(screen.getByText('6:00 AM – 10:00 PM')).toBeTruthy();
     expect(screen.getByText('Today')).toBeTruthy();
-    expect(screen.getByLabelText('Monday, today: 06:00 to 22:00')).toBeTruthy();
+    expect(screen.getByLabelText('Monday, today: 6:00 AM to 10:00 PM')).toBeTruthy();
   });
 });

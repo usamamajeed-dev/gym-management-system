@@ -4,6 +4,7 @@ import { GymTiming } from '../api/types';
 import { useAppTheme } from '../theme/paperTheme';
 import { radius, spacing } from '../theme/spacing';
 import { typography } from '../theme/typography';
+import { formatClock } from '../utils/dates';
 
 /** One weekday's opening hours. Today is highlighted; closed days are muted. */
 export function TimingRow({ timing, isToday }: { timing: GymTiming; isToday: boolean }) {
@@ -13,7 +14,7 @@ export function TimingRow({ timing, isToday }: { timing: GymTiming; isToday: boo
   return (
     <View
       testID={`timing-${timing.day_of_week}`}
-      accessibilityLabel={`${timing.day_name}${isToday ? ', today' : ''}: ${closed ? 'closed' : `${timing.opens_at} to ${timing.closes_at}`}`}
+      accessibilityLabel={`${timing.day_name}${isToday ? ', today' : ''}: ${closed ? 'closed' : `${formatClock(timing.opens_at)} to ${formatClock(timing.closes_at)}`}`}
       style={[styles.row, isToday && { backgroundColor: app.primarySoft, borderColor: app.primary + '40' }]}
     >
       <View style={styles.day}>
@@ -28,7 +29,7 @@ export function TimingRow({ timing, isToday }: { timing: GymTiming; isToday: boo
         <Text style={[typography.label, { color: app.textFaint }]}>Closed</Text>
       ) : (
         <Text style={[typography.label, { color: isToday ? app.primary : app.textSecondary }]}>
-          {timing.opens_at} – {timing.closes_at}
+          {formatClock(timing.opens_at)} – {formatClock(timing.closes_at)}
         </Text>
       )}
     </View>

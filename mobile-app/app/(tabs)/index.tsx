@@ -18,6 +18,7 @@ import { useRefresh } from '@/hooks/useRefresh';
 import { useAppTheme } from '@/theme/paperTheme';
 import { radius, spacing } from '@/theme/spacing';
 import { typography } from '@/theme/typography';
+import { formatClock } from '@/utils/dates';
 import { toApiError } from '@/utils/errors';
 
 type IconName = ComponentProps<typeof MaterialCommunityIcons>['name'];
@@ -138,7 +139,7 @@ export function DashboardBody({ data }: { data: Dashboard }) {
               </Text>
             </View>
             <Text style={[typography.heading, styles.hours, { color: app.text }]}>
-              {closedToday ? 'Closed today' : `${today.opens_at} – ${today.closes_at}`}
+              {closedToday ? 'Closed today' : `${formatClock(today.opens_at)} – ${formatClock(today.closes_at)}`}
             </Text>
             <Text style={[typography.caption, { color: app.textMuted }]}>Today · tap for the full week</Text>
           </View>

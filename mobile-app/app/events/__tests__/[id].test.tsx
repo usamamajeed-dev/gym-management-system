@@ -60,7 +60,7 @@ describe('EventDetailScreen', () => {
     await renderWithProviders(<EventDetailScreen />);
 
     expect(screen.getByText('Morning Yoga Flow')).toBeTruthy();
-    expect(screen.getByText('07:00 – 08:00')).toBeTruthy();
+    expect(screen.getByText('7:00 AM – 8:00 AM')).toBeTruthy();
     expect(screen.getByText('Studio 1')).toBeTruthy();
     expect(screen.getByText('20 people')).toBeTruthy();
     expect(screen.queryByText('Finished')).toBeNull();

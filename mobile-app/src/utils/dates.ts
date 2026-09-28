@@ -21,16 +21,24 @@ export function formatDate(iso: string | null | undefined, pattern = 'EEE d MMM'
   return iso ? format(gymDate(iso), pattern) : '—';
 }
 
-/** "18:00" */
+/** "6:00 PM" */
 export function formatTime(iso: string | null | undefined): string {
-  return iso ? format(gymDate(iso), 'HH:mm') : '—';
+  return iso ? format(gymDate(iso), 'h:mm a') : '—';
 }
 
-/** "18:00 – 19:30", or across days "Sat 23:00 – Sun 01:00". */
+/** "6:00 PM – 7:30 PM", or across days "Sat 11:00 PM – Sun 1:00 AM". */
 export function formatRange(startIso: string, endIso: string | null | undefined): string {
   if (!endIso) return formatTime(startIso);
   if (gymDayKey(startIso) === gymDayKey(endIso)) return `${formatTime(startIso)} – ${formatTime(endIso)}`;
-  return `${formatDate(startIso, 'EEE HH:mm')} – ${formatDate(endIso, 'EEE HH:mm')}`;
+  return `${formatDate(startIso, 'EEE h:mm a')} – ${formatDate(endIso, 'EEE h:mm a')}`;
+}
+
+/** An opening-hours time from the API ("18:30", 24-hour) as "6:30 PM". */
+export function formatClock(time: string | null | undefined): string {
+  const match = time?.match(/^(\d{1,2}):(\d{2})/);
+  if (!match) return time ?? '';
+  const hours = Number(match[1]);
+  return `${hours % 12 || 12}:${match[2]} ${hours < 12 ? 'AM' : 'PM'}`;
 }
 
 /** A plain Y-m-d (date of birth) as "15 Jun 1995". */
