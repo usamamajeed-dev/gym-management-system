@@ -18,11 +18,14 @@ export interface Paginated<T> {
   pagination: Pagination;
 }
 
-/** Normalised error: server message, 422 field errors and machine-readable error code. */
+/**
+ * Normalised error: server message, field errors and machine-readable error code.
+ * Validation errors are string arrays; a few codes (e.g. MEMBER_REJECTED) carry a plain string.
+ */
 export interface ApiError {
   message: string;
   status?: number;
-  errors?: Record<string, string[]>;
+  errors?: Record<string, string[] | string>;
   error_code?: string;
   retry_after?: number;
   network?: boolean;

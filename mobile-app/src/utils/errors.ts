@@ -35,3 +35,9 @@ export function isClientError(error: unknown): boolean {
   const status = toApiError(error).status;
   return status !== undefined && status >= 400 && status < 500;
 }
+
+/** First message for a field, whether the API sent an array or a single string. */
+export function fieldMessage(error: ApiError, field: string): string | undefined {
+  const value = error.errors?.[field];
+  return Array.isArray(value) ? value[0] : value;
+}
