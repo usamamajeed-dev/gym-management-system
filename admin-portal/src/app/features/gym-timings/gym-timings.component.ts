@@ -15,6 +15,7 @@ import { EmptyStateComponent } from '../../core/ui/empty-state.component';
 import { NotifyService } from '../../core/ui/notify.service';
 import { PageHeaderComponent } from '../../core/ui/page-header.component';
 import { StatusChipComponent } from '../../core/ui/status-chip.component';
+import { TimeFieldComponent } from '../../core/ui/time-field.component';
 import { applyServerErrors, firstErrorMessage } from '../../core/utils/form-errors';
 import { HasUnsavedChanges } from '../../core/utils/unsaved-changes.guard';
 import { GymTiming, GymTimingInput } from './gym-timing.model';
@@ -96,6 +97,7 @@ function minutes(time: string | null): number {
     PageHeaderComponent,
     StatusChipComponent,
     EmptyStateComponent,
+    TimeFieldComponent,
   ],
   templateUrl: './gym-timings.component.html',
   styleUrl: './gym-timings.component.scss',

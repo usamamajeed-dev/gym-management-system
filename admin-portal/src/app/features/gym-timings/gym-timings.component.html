@@ -83,23 +83,17 @@
                 </mat-slide-toggle>
 
                 <div class="row__times">
-                  <mat-form-field class="compact-field time-field">
-                    <input
-                      matInput
-                      type="time"
-                      formControlName="opens_at"
-                      [attr.aria-label]="row.controls.day_name.value + ' opens at'"
-                    />
-                  </mat-form-field>
+                  <app-time-field
+                    class="compact-field time-field"
+                    formControlName="opens_at"
+                    [ariaLabel]="row.controls.day_name.value + ' opens at'"
+                  />
                   <span class="row__sep">to</span>
-                  <mat-form-field class="compact-field time-field">
-                    <input
-                      matInput
-                      type="time"
-                      formControlName="closes_at"
-                      [attr.aria-label]="row.controls.day_name.value + ' closes at'"
-                    />
-                  </mat-form-field>
+                  <app-time-field
+                    class="compact-field time-field"
+                    formControlName="closes_at"
+                    [ariaLabel]="row.controls.day_name.value + ' closes at'"
+                  />
                 </div>
 
                 <span class="row__hours">{{ hours(row) }}</span>

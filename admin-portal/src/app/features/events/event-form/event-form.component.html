@@ -110,11 +110,7 @@
               <mat-datepicker #startPicker />
               <mat-error><app-field-error [control]="form.controls.start_date" label="Start date" /></mat-error>
             </mat-form-field>
-            <mat-form-field>
-              <mat-label>Time</mat-label>
-              <input matInput type="time" formControlName="start_time" />
-              <mat-error><app-field-error [control]="form.controls.start_time" label="Start time" /></mat-error>
-            </mat-form-field>
+            <app-time-field label="Time" formControlName="start_time" interval="15m" errorLabel="Start time" />
 
             <span class="schedule__label">Ends <small>optional</small></span>
             <mat-form-field>
@@ -124,10 +120,7 @@
               <mat-datepicker #endPicker />
               <mat-error><app-field-error [control]="form.controls.end_date" label="End date" /></mat-error>
             </mat-form-field>
-            <mat-form-field>
-              <mat-label>Time</mat-label>
-              <input matInput type="time" formControlName="end_time" />
-            </mat-form-field>
+            <app-time-field label="Time" formControlName="end_time" interval="15m" />
           </div>
           @if (scheduleError() && (form.touched || form.dirty)) {
             <p class="form-error"><mat-icon>error</mat-icon>{{ scheduleError() }}</p>

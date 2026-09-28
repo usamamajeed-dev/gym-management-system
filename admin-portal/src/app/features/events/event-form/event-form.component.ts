@@ -26,6 +26,7 @@ import { FieldErrorComponent } from '../../../core/ui/field-error.component';
 import { ImageChange, ImageUploadComponent } from '../../../core/ui/image-upload.component';
 import { NotifyService } from '../../../core/ui/notify.service';
 import { PageHeaderComponent } from '../../../core/ui/page-header.component';
+import { TimeFieldComponent } from '../../../core/ui/time-field.component';
 import { applyServerErrors } from '../../../core/utils/form-errors';
 import { gymParts } from '../../../core/utils/date.utils';
 import { HasUnsavedChanges } from '../../../core/utils/unsaved-changes.guard';
@@ -81,6 +82,7 @@ export const scheduleValidator: ValidatorFn = (group: AbstractControl): Validati
     FieldErrorComponent,
     ImageUploadComponent,
     EmptyStateComponent,
+    TimeFieldComponent,
   ],
   templateUrl: './event-form.component.html',
   styleUrl: './event-form.component.scss',
