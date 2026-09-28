@@ -10,8 +10,9 @@ import { MatMenuModule } from '@angular/material/menu';
 import { MatSidenavModule } from '@angular/material/sidenav';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { NavigationEnd, Router, RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
-import { filter, map } from 'rxjs';
+import { catchError, filter, map, of } from 'rxjs';
 
+import { GymConfigService } from '../api/gym-config.service';
 import { AuthService } from '../auth/auth.service';
 import { NAV_ITEMS, NAV_SECTIONS, NavItem } from './nav-items';
 import { PendingMembersService } from './pending-members.service';
@@ -71,11 +72,20 @@ export class ShellComponent {
     NAV_ITEMS.find((item) => this.url().split('?')[0].startsWith(item.path)),
   );
 
-  protected readonly today = new Intl.DateTimeFormat('en-GB', {
-    weekday: 'long',
-    day: 'numeric',
-    month: 'long',
-  }).format(new Date());
+  /** Today's date in the gym's timezone (the browser's own zone if it can't be loaded). */
+  protected readonly today = toSignal(
+    inject(GymConfigService)
+      .timezone()
+      .pipe(
+        catchError(() => of(undefined)),
+        map((timeZone) =>
+          new Intl.DateTimeFormat('en-GB', { weekday: 'long', day: 'numeric', month: 'long', timeZone }).format(
+            new Date(),
+          ),
+        ),
+      ),
+    { initialValue: '' },
+  );
 
   constructor() {
     this.pending.refresh();

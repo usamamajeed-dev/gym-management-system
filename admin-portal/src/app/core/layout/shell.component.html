@@ -81,10 +81,12 @@
         }
       </div>
 
-      <span class="topbar__date hide-sm">
-        <mat-icon>calendar_today</mat-icon>
-        {{ today }}
-      </span>
+      @if (today(); as today) {
+        <span class="topbar__date hide-sm">
+          <mat-icon>calendar_today</mat-icon>
+          {{ today }}
+        </span>
+      }
 
       <button
         type="button"
