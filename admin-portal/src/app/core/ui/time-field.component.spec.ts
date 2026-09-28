@@ -39,13 +39,13 @@ describe('TimeFieldComponent', () => {
     await fixture.whenStable();
   }
 
-  it('shows the form value as a 24-hour time', async () => {
+  it('shows the form value on a 12-hour clock', async () => {
     const { input } = await setup();
 
-    expect(input.value).toBe('18:00');
+    expect(input.value).toBe('6:00 PM');
   });
 
-  it('writes typed times back as "HH:mm", including 12-hour input', async () => {
+  it('writes typed times back as "HH:mm", from 12- or 24-hour input', async () => {
     const { fixture, input, control } = await setup();
 
     await type(fixture, input, '6:15');
@@ -53,6 +53,12 @@ describe('TimeFieldComponent', () => {
 
     await type(fixture, input, '7:45 pm');
     expect(control.value).toBe('19:45');
+
+    await type(fixture, input, '21:30');
+    expect(control.value).toBe('21:30');
+
+    await type(fixture, input, '12:00 AM');
+    expect(control.value).toBe('00:00');
   });
 
   it('gives null for empty or unreadable input', async () => {

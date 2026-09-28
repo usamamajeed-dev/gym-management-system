@@ -27,8 +27,8 @@ function toTime(date: Date): string {
 }
 
 /**
- * Time input with a dropdown of times (every `interval`) that also accepts typing,
- * e.g. "7:15" or "19:15". Bind it with formControlName: the form value stays an "HH:mm"
+ * Time input with a dropdown of times (every `interval`) on a 12-hour clock. It also
+ * accepts typing, e.g. "7:15 pm" or "19:15". Bind it with formControlName: the form value stays an "HH:mm"
  * string (or null when empty), the format the API uses.
  */
 @Component({
