@@ -68,7 +68,7 @@ export const darkColors: AppColors = {
   textSecondary: '#CBD5E1',
   textMuted: '#94A3B8',
   textFaint: '#64748B',
-  primary: '#818CF8',
+  primary: '#6366F1',
   primarySoft: 'rgba(129, 140, 248, 0.16)',
   accent: '#FB923C',
   accentSoft: 'rgba(251, 146, 60, 0.16)',

@@ -97,6 +97,21 @@ describe('AuthContext', () => {
     expect(auth().notice).toMatch(/session has ended/i);
   });
 
+  it('logout revokes the token on the server and clears it locally', async () => {
+    api.login.mockResolvedValue({ token: 'new-token', token_type: 'Bearer', expires_at: null, user: MEMBER });
+    api.logout.mockResolvedValue();
+    await renderAuth();
+    await waitFor(() => expect(screen.getByTestId('status')).toHaveTextContent('signedOut'));
+    await act(() => auth().login('sara@example.com', 'Secret@123'));
+
+    await act(() => auth().logout());
+
+    expect(api.logout).toHaveBeenCalledTimes(1);
+    expect(screen.getByTestId('status')).toHaveTextContent('signedOut');
+    expect(await tokenStorage.get()).toBeNull();
+    expect(getAuthToken()).toBeNull();
+  });
+
   it('logout clears the token even when the API call fails', async () => {
     api.login.mockResolvedValue({ token: 'new-token', token_type: 'Bearer', expires_at: null, user: MEMBER });
     api.logout.mockRejectedValue(new Error('offline'));
