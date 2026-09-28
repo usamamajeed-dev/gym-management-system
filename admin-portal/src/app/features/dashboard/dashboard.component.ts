@@ -11,7 +11,7 @@ import { PermissionDirective } from '../../core/auth/permission.directive';
 import { EmptyStateComponent } from '../../core/ui/empty-state.component';
 import { PageHeaderComponent } from '../../core/ui/page-header.component';
 import { StatusChipComponent } from '../../core/ui/status-chip.component';
-import { formatDate, formatTimeRange, gymParts, timeAgo } from '../../core/utils/date.utils';
+import { formatClock, formatDate, formatTimeRange, gymParts, timeAgo } from '../../core/utils/date.utils';
 import { MemberActionsService } from '../members/member-actions.service';
 import { Member } from '../members/member.model';
 import { Dashboard } from './dashboard.model';
@@ -66,6 +66,7 @@ export class DashboardComponent {
   protected readonly initials = initialsOf;
   protected readonly formatDate = formatDate;
   protected readonly formatTimeRange = formatTimeRange;
+  protected readonly formatClock = formatClock;
   protected readonly timeAgo = timeAgo;
   protected readonly skeletonCards = Array.from({ length: 6 }, (_, i) => i);
 

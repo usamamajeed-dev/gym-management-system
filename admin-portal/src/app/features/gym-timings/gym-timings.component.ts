@@ -16,6 +16,7 @@ import { NotifyService } from '../../core/ui/notify.service';
 import { PageHeaderComponent } from '../../core/ui/page-header.component';
 import { StatusChipComponent } from '../../core/ui/status-chip.component';
 import { TimeFieldComponent } from '../../core/ui/time-field.component';
+import { formatClock } from '../../core/utils/date.utils';
 import { applyServerErrors, firstErrorMessage } from '../../core/utils/form-errors';
 import { HasUnsavedChanges } from '../../core/utils/unsaved-changes.guard';
 import { GymTiming, GymTimingInput } from './gym-timing.model';
@@ -141,7 +142,7 @@ export class GymTimingsComponent implements HasUnsavedChanges {
         open,
         left: (start / 1440) * 100,
         width: open ? ((end - start) / 1440) * 100 : 0,
-        label: open ? `${r.opens_at} – ${r.closes_at}` : 'Closed',
+        label: open ? `${formatClock(r.opens_at)} – ${formatClock(r.closes_at)}` : 'Closed',
         today: r.day_of_week === this.todayDay,
       };
     }),

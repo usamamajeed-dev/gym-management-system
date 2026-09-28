@@ -117,7 +117,9 @@
           </div>
         </header>
         <div class="glance">
-          <div class="glance__scale"><span>00</span><span>06</span><span>12</span><span>18</span><span>24</span></div>
+          <div class="glance__scale">
+            <span>12 AM</span><span>6 AM</span><span>12 PM</span><span>6 PM</span><span>12 AM</span>
+          </div>
           @for (p of preview(); track p.day) {
             <div class="glance__row" [class.glance__row--today]="p.today">
               <span class="glance__day">{{ p.day }}</span>

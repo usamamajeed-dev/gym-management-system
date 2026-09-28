@@ -28,7 +28,7 @@ import { NotifyService } from '../../../core/ui/notify.service';
 import { PageHeaderComponent } from '../../../core/ui/page-header.component';
 import { TimeFieldComponent } from '../../../core/ui/time-field.component';
 import { applyServerErrors } from '../../../core/utils/form-errors';
-import { gymParts } from '../../../core/utils/date.utils';
+import { formatClock, gymParts } from '../../../core/utils/date.utils';
 import { HasUnsavedChanges } from '../../../core/utils/unsaved-changes.guard';
 import { EventTypeOption } from '../../event-types/event-type.model';
 import { EventTypesService } from '../../event-types/event-types.service';
@@ -142,8 +142,9 @@ export class EventFormComponent implements OnInit, HasUnsavedChanges {
     const date = new Intl.DateTimeFormat('en-GB', { weekday: 'short', day: 'numeric', month: 'short' }).format(
       v.start_date,
     );
-    const end = v.end_time && (!v.end_date || ymd(v.end_date) === ymd(v.start_date)) ? ` – ${v.end_time}` : '';
-    return `${date} · ${v.start_time || '--:--'}${end}`;
+    const end =
+      v.end_time && (!v.end_date || ymd(v.end_date) === ymd(v.start_date)) ? ` – ${formatClock(v.end_time)}` : '';
+    return `${date} · ${v.start_time ? formatClock(v.start_time) : '--:--'}${end}`;
   });
 
   ngOnInit(): void {

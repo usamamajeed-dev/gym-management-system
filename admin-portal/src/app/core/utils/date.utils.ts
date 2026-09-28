@@ -32,11 +32,20 @@ export function formatDate(iso: string | null | undefined): string {
   return parts ? DATE_FMT.format(utcDate(parts.date)) : '—';
 }
 
-/** "5 Oct 2026, 18:00" */
+/** "18:30" (24-hour, as the API sends times) → "6:30 PM". Anything unreadable is returned as is. */
+export function formatClock(time: string | null | undefined): string {
+  const match = time?.match(/^(\d{1,2}):(\d{2})/);
+  if (!match) return time ?? '';
+
+  const hours = Number(match[1]);
+  return `${hours % 12 || 12}:${match[2]} ${hours < 12 ? 'AM' : 'PM'}`;
+}
+
+/** "5 Oct 2026, 6:00 PM" */
 export function formatDateTime(iso: string | null | undefined): string {
   const parts = gymParts(iso);
 
-  return parts ? `${DATE_FMT.format(utcDate(parts.date))}, ${parts.time}` : '—';
+  return parts ? `${DATE_FMT.format(utcDate(parts.date))}, ${formatClock(parts.time)}` : '—';
 }
 
 /** "Mon, 5 Oct" */
@@ -46,16 +55,16 @@ export function formatDay(iso: string | null | undefined): string {
   return parts ? DAY_FMT.format(utcDate(parts.date)) : '—';
 }
 
-/** "18:00 – 19:30", "18:00", or a range across days. */
+/** "6:00 PM – 7:30 PM", "6:00 PM", or a range across days. */
 export function formatTimeRange(startIso: string | null | undefined, endIso: string | null | undefined): string {
   const start = gymParts(startIso);
   const end = gymParts(endIso);
 
   if (!start) return '—';
-  if (!end) return start.time;
-  if (end.date === start.date) return `${start.time} – ${end.time}`;
+  if (!end) return formatClock(start.time);
+  if (end.date === start.date) return `${formatClock(start.time)} – ${formatClock(end.time)}`;
 
-  return `${start.time} – ${formatDay(endIso)}, ${end.time}`;
+  return `${formatClock(start.time)} – ${formatDay(endIso)}, ${formatClock(end.time)}`;
 }
 
 /** "just now", "5 min ago", "3 days ago", or the date for anything older than a month. */
