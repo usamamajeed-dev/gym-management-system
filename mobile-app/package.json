@@ -54,7 +54,7 @@
     "web": "expo start --web",
     "lint": "eslint .",
     "typecheck": "tsc --noEmit",
-    "test": "jest",
+    "test": "TZ=UTC jest",
     "format": "prettier --write \"app/**/*.{ts,tsx}\" \"src/**/*.{ts,tsx}\"",
     "format:check": "prettier --check \"app/**/*.{ts,tsx}\" \"src/**/*.{ts,tsx}\""
   },
